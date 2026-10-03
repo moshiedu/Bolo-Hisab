@@ -7,6 +7,7 @@ import com.bolohisab.data.LedgerEntry
 import com.bolohisab.data.LedgerRepository
 import com.bolohisab.nlu.CustomerRef
 import com.bolohisab.nlu.EntryDraft
+import com.bolohisab.nlu.Hotwords
 import com.bolohisab.nlu.KnownCustomer
 import com.bolohisab.nlu.LedgerParser
 import com.bolohisab.nlu.LedgerQuery
@@ -110,7 +111,8 @@ class RecordViewModel @Inject constructor(
         _state.update { it.copy(mic = MicState.Listening("", 0f), answer = null) }
         listenJob = viewModelScope.launch {
             try {
-                speech.listen(hotwords = customers.value.map { it.name }).collect { event ->
+                val hotwords = Hotwords.build(customers.value.map { it.name }, productNames.value, itemNames.value)
+                speech.listen(hotwords = hotwords).collect { event ->
                     when (event) {
                         is SpeechEvent.Level -> _state.update { s ->
                             (s.mic as? MicState.Listening)?.let { s.copy(mic = it.copy(level = event.value)) } ?: s

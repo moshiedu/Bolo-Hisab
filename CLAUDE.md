@@ -20,6 +20,11 @@ the khata basics ship in v1, with voice-first entry as the differentiator.
   `next_words.csv` (`<number>`, `<customer>` slots, row order = rank), `dialect.csv`; parser corpus
   `core/nlu/src/test/resources/com/bolohisab/nlu/test_sentences.csv` runs as `SentenceCorpusTest`.
   `LexiconFilesTest` validates every file. Grow vocabulary and dialects there, not in code.
+  `words.csv` rows in `grocery`/`pharmacy`/`hardware` are goods for the parser (`Lexicon.goods`) and
+  ASR hotwords (`Hotwords.build`: customers, products, past items, units, goods; cap 300).
+- **ASR hotwords** only work for a model on disk (BPE vocab must be a file). `AsrModelInstaller`
+  copies the bundled model to storage (~90 MB, opt-in Settings toggle, space-checked, atomic) and
+  `SpeechRecognizer.reload()` picks it up. Long term: Play Asset Delivery to avoid the duplicate.
 - **Learning** (on device, encrypted DB tables `typing_choices`, `word_usage`, `word_pairs`,
   `corrections`; `LearningRepository`): whole-word picks per Banglish spelling, word/pair usage from
   confirmed entries, and voice fixes learned from confirm-card edits (`Corrections.learn`). Corrections

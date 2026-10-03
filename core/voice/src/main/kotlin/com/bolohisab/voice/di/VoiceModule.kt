@@ -1,6 +1,7 @@
 package com.bolohisab.voice.di
 
 import android.content.Context
+import com.bolohisab.voice.AsrModelInstaller
 import com.bolohisab.voice.SherpaSpeechRecognizer
 import com.bolohisab.voice.SpeechRecognizer
 import dagger.Module
@@ -16,4 +17,8 @@ object VoiceModule {
     @Provides
     @Singleton
     fun speechRecognizer(@ApplicationContext context: Context): SpeechRecognizer = SherpaSpeechRecognizer(context)
+
+    @Provides
+    @Singleton
+    fun modelInstaller(@ApplicationContext context: Context): AsrModelInstaller = AsrModelInstaller(context)
 }

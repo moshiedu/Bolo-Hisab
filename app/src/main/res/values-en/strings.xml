@@ -168,6 +168,12 @@
     <string name="learned_forget">Forget</string>
     <string name="learned_clear_all">Clear all</string>
     <string name="learned_clear_confirm">Everything the app has learned will be removed. Your ledger, customers and products are not affected.</string>
+    <string name="voice_boost_toggle">Better recognition of your names</string>
+    <string name="voice_boost_hint">Voice will catch your customers, products and common goods more reliably. Uses %1$s MB more storage.</string>
+    <string name="voice_boost_on">On: voice favours your customers and products</string>
+    <string name="voice_boost_working">Setting up…</string>
+    <string name="voice_boost_no_space">Not enough space: needs %1$s MB, %2$s MB free</string>
+    <string name="voice_boost_failed">Could not turn on: %1$s</string>
 
     <string name="settings_lock_section">App Lock</string>
     <string name="settings_lock_toggle">Lock the app with a PIN</string>

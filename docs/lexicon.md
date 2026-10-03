@@ -11,6 +11,21 @@ Excel or Google Sheets. The app reads them directly, so no code changes are need
 | `dialect.csv` | same folder | yes |
 | `test_sentences.csv` | `core/nlu/src/test/resources/com/bolohisab/nlu/` | no (tests only) |
 
+## What each file feeds
+
+| File | Typing suggestions | Voice: text → entry (parser) | Voice: speech recognition |
+| --- | --- | --- | --- |
+| `words.csv` | ✅ all rows | ✅ rows with category `grocery`, `pharmacy` or `hardware` are known goods | ✅ the same goods rows are hotwords* |
+| `phrases.csv` | ✅ | — | — |
+| `next_words.csv` | ✅ | — | — |
+| `dialect.csv` | — | ✅ voice and typed text | — |
+| `test_sentences.csv` | — | ✅ checks the parser | — |
+
+\* Hotwords bias the speech model towards these words, after the shop's own customers and products.
+They are active only when *Settings → Better recognition of your names* is on, because that copies
+the model to storage (about 90 MB), which the speech engine needs before it can use hotwords. No CSV teaches the
+model to *hear* regional pronunciation; that needs training on recorded audio.
+
 ## Workflow
 
 1. Import the file into a sheet: *File → Import* in Google Sheets, or open it in Excel as UTF-8.
@@ -32,7 +47,7 @@ In every file:
 | --- | --- | --- |
 | `word` | The Bangla word or short name, in standard spelling | `পেঁয়াজ` |
 | `aliases` | English or Banglish spellings people type for it, separated by `\|` | `onion\|peyaj\|piyaj` |
-| `category` | Group, for your own sorting: `money`, `grocery`, `pharmacy`, `hardware`, `unit`, `question_time`, `people`, `shop_cost`, `number` | `grocery` |
+| `category` | `money`, `grocery`, `pharmacy`, `hardware`, `unit`, `question_time`, `people`, `shop_cost`, `number`. **`grocery`, `pharmacy` and `hardware` mark goods**: voice entry treats them as items, never as a customer's name | `grocery` |
 | `note` | Free text | |
 
 You don't need to list every Banglish spelling. Loose spellings already match by sound

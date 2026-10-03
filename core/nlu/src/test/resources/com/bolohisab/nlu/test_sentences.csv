@@ -16,3 +16,5 @@ sentence,type,customer,total,paid,items,note
 আজ মোট বিক্রি কত,sales_question,,,,,
 সবচেয়ে বেশি বাকি কার,top_debtors,,,,,
 হ্যালো কেমন আছেন,unrecognized,,,,,not a ledger sentence
+সিমেন্ট ২ বস্তা ১২০০ টাকা,cash_sale,-,1200,1200,1,"hardware word from words.csv, not a customer"
+রহিম ১০ পিস প্যারাসিটামল ২০ টাকা বাকি,credit_sale,রহিম,20,0,1,pharmacy word from words.csv

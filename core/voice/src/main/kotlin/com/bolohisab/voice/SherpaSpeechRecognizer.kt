@@ -98,6 +98,14 @@ class SherpaSpeechRecognizer(
 
     override fun stop() = stopRequested.set(true)
 
+    override suspend fun reload() = withContext(asrThread) {
+        recognizer?.release()
+        recognizer = null
+        _state.value = ModelState.NotLoaded
+        ensureLoaded()
+        Unit
+    }
+
     @SuppressLint("MissingPermission") // Checked below; the UI requests it before calling listen().
     override fun listen(hotwords: List<String>): Flow<SpeechEvent> = flow {
         check(

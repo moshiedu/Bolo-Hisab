@@ -43,4 +43,7 @@ interface SpeechRecognizer {
 
     /** Ends the current recording; the flow then emits its final text. */
     fun stop()
+
+    /** Drops the loaded model and loads it again, e.g. after it was copied to or removed from storage. */
+    suspend fun reload()
 }

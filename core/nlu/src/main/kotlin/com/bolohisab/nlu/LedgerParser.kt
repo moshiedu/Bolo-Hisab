@@ -20,7 +20,7 @@ class LedgerParser(
         corrections.entries.associate { (wrong, right) -> BanglaText.key(wrong) to BanglaText.key(right) }
 
     private val matcher = CustomerMatcher(customers)
-    private val itemWords: Set<String> = Lexicon.items + knownItems.map(BanglaText::key)
+    private val itemWords: Set<String> = Lexicon.goods + knownItems.map(BanglaText::key)
 
     fun parse(transcript: String): ParseResult {
         val words = Corrections.apply(BanglaText.tokenize(transcript).map(Dialect::standardize), fixes)

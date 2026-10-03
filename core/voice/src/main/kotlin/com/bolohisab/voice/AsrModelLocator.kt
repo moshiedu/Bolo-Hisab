@@ -25,6 +25,9 @@ class AsrModelLocator(private val context: Context) {
 
     fun locate(): AsrModelFiles? = fromDisk() ?: fromAssets()
 
+    /** The model copied into app storage, if complete. */
+    fun locateOnDisk(): AsrModelFiles? = fromDisk()
+
     private fun fromDisk(): AsrModelFiles? {
         val dir = File(context.filesDir, DISK_DIR)
         val names = dir.list()?.toList() ?: return null

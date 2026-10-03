@@ -168,6 +168,12 @@
     <string name="learned_forget">মুছুন</string>
     <string name="learned_clear_all">সব মুছুন</string>
     <string name="learned_clear_confirm">অ্যাপ যা শিখেছে সব মুছে যাবে। আপনার হিসাব, কাস্টমার বা পণ্যের কিছু হবে না।</string>
+    <string name="voice_boost_toggle">কাস্টমার ও পণ্যের নাম ভালো চেনা</string>
+    <string name="voice_boost_hint">ভয়েসে আপনার কাস্টমার, পণ্য ও সাধারণ মালের নাম বেশি ঠিকভাবে ধরবে। ফোনে আরও %1$s MB জায়গা লাগবে।</string>
+    <string name="voice_boost_on">চালু আছে: ভয়েস আপনার কাস্টমার ও পণ্যের নামকে গুরুত্ব দিচ্ছে</string>
+    <string name="voice_boost_working">প্রস্তুত করা হচ্ছে…</string>
+    <string name="voice_boost_no_space">জায়গা কম: %1$s MB দরকার, খালি আছে %2$s MB</string>
+    <string name="voice_boost_failed">চালু করা যায়নি: %1$s</string>
 
     <string name="settings_lock_section">অ্যাপ লক</string>
     <string name="settings_lock_toggle">পিন দিয়ে অ্যাপ লক করুন</string>
