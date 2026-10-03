@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Bolo Hisab</string>
+
+    <string name="tab_ledger">Ledger</string>
+    <string name="tab_customers">Customers</string>
+
+    <string name="stat_sales">Sales</string>
+    <string name="stat_credit">Credit Given</string>
+    <string name="stat_collected">Collected</string>
+    <string name="stat_expense">Expense</string>
+    <string name="today_label">Today, %1$s</string>
+
+    <string name="recent_entries">Recent Entries</string>
+    <string name="empty_title">No entries yet</string>
+    <string name="empty_body">Hold the mic and say it all at once: name, item, price, and what they paid.</string>
+    <string name="empty_example_1">Rahim bought 2 kg rice for 120 taka and 1 litre oil for 200 taka, paid 100</string>
+    <string name="empty_example_2">Karim bhai deposited 500 taka</string>
+    <string name="empty_example_3">How much does Rahim owe?</string>
+
+    <string name="mic_hint">Hold to speak</string>
+    <string name="mic_listening">Listening… release to record the entry</string>
+    <string name="mic_tap_hint">Hold the button down while speaking</string>
+    <string name="mic_content_description">Hold to speak</string>
+    <string name="voice_field_mic_content_description">Voice type</string>
+    <string name="voice_field_mic_listening_content_description">Listening… tap to stop</string>
+    <string name="type_entry">Type an entry</string>
+    <string name="type_entry_hint">e.g. Karim deposited 500 taka</string>
+
+    <string name="action_ok">OK</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_save">Save</string>
+    <string name="action_update">Update</string>
+    <string name="action_undo">Undo</string>
+    <string name="action_continue">Continue</string>
+
+    <string name="saved">Saved</string>
+    <string name="entry_updated">Updated</string>
+    <string name="undone">Entry deleted</string>
+    <string name="not_understood">Couldn\'t understand: “%1$s”</string>
+    <string name="nothing_heard">Didn\'t hear anything, try again</string>
+    <string name="mic_permission_needed">Voice entry needs the microphone. You can type entries instead.</string>
+    <string name="model_missing">Voice model isn\'t ready yet. Type your entries for now.</string>
+    <string name="model_loading">Starting voice…</string>
+    <string name="model_failed">Couldn\'t start voice: %1$s</string>
+    <string name="save_failed">Couldn\'t save: %1$s</string>
+
+    <string name="type_cash_sale">Cash Sale</string>
+    <string name="type_credit_sale">Credit</string>
+    <string name="type_payment">Payment</string>
+    <string name="type_expense">Expense</string>
+
+    <string name="review_title">Review the entry</string>
+    <string name="review_customer">Customer</string>
+    <string name="review_customer_new">New customer</string>
+    <string name="review_items">Items</string>
+    <string name="review_item_name">Item</string>
+    <string name="review_item_qty">Quantity</string>
+    <string name="review_item_price">Price</string>
+    <string name="review_add_item">Add item</string>
+    <string name="review_remove_item">Remove item</string>
+    <string name="review_total">Total</string>
+    <string name="review_paid">Amount paid</string>
+    <string name="review_due">Due remaining</string>
+    <string name="review_amount">Amount</string>
+    <string name="review_note">Note</string>
+    <string name="review_check">Check</string>
+    <string name="review_need_customer">Enter the customer\'s name for credit or a payment</string>
+    <string name="review_need_amount">Enter the amount</string>
+    <string name="review_paid_too_much">The amount paid can\'t be more than the total</string>
+    <string name="review_delete">Delete</string>
+    <string name="review_delete_confirm_title">Delete this entry?</string>
+    <string name="review_delete_confirm_body">This entry will be deleted. You can bring it back later with \"Undo\".</string>
+    <string name="review_history_title">Edit history</string>
+    <string name="review_history_row">%1$s — was %2$s</string>
+
+    <string name="customers_search">Search by name</string>
+    <string name="customers_total_due">Total due</string>
+    <string name="customers_count">%1$s customers</string>
+    <string name="customers_empty">No customers yet. Mention a credit sale or a payment and the customer is added automatically.</string>
+    <string name="customer_settled">Settled</string>
+    <string name="customer_no_activity">No transactions</string>
+    <string name="customer_last_activity">Last transaction %1$s</string>
+    <string name="customer_send_reminder">Send reminder</string>
+    <string name="customer_history">Transactions</string>
+    <string name="reminder_message">Dear %1$s, your outstanding balance is %2$s. Please pay at your convenience. Thank you.</string>
+    <string name="back">Back</string>
+
+    <string name="customer_add">Add customer</string>
+    <string name="customer_edit">Edit customer</string>
+    <string name="customer_name">Name</string>
+    <string name="customer_phone">Phone number</string>
+    <string name="customer_address">Address</string>
+    <string name="customer_pick_contact">Choose from contacts</string>
+    <string name="customer_call">Call</string>
+    <string name="customer_name_required">Enter a name</string>
+    <string name="customer_change_photo">Change profile photo</string>
+    <string name="customer_choose_gallery">Choose from gallery</string>
+    <string name="customer_take_photo">Take photo</string>
+
+    <string name="tab_stock">Stock</string>
+    <string name="stock_title">Stock</string>
+    <string name="stock_add">Add product</string>
+    <string name="stock_edit">Edit product</string>
+    <string name="stock_name">Product name</string>
+    <string name="stock_unit">Unit</string>
+    <string name="stock_unit_none">No unit</string>
+    <string name="stock_opening_qty">Opening quantity</string>
+    <string name="stock_low_threshold">Low stock alert</string>
+    <string name="stock_low_threshold_hint">The list shows this item in red once stock falls below this</string>
+    <string name="stock_restock">Add stock</string>
+    <string name="stock_restock_qty">How much to add</string>
+    <string name="stock_low_label">Low stock</string>
+    <string name="stock_empty">No products added yet. Tap + to add a product — stock will drop automatically whenever a sale matches its name.</string>
+    <string name="stock_search">Search products</string>
+    <string name="stock_count">%1$s products</string>
+    <string name="stock_current">Current</string>
+
+    <string name="answer_title">Answer</string>
+    <string name="answer_due">%1$s owes %2$s</string>
+    <string name="answer_no_due">%1$s owes nothing</string>
+    <string name="answer_unknown_customer">No customer found with that name</string>
+    <string name="answer_sales">%1$s sales %2$s\nCredit given %3$s · Collected %4$s</string>
+    <string name="answer_top_debtors">Biggest dues</string>
+    <string name="answer_no_debtors">No one owes anything</string>
+    <string name="period_today">Today</string>
+    <string name="period_yesterday">Yesterday</string>
+    <string name="period_week">This week</string>
+    <string name="period_month">This month</string>
+
+    <string name="entry_walk_in">Cash Sale</string>
+    <string name="entry_expense">Expense</string>
+    <string name="entry_payment_from">%1$s deposited</string>
+    <string name="entry_paid_part">Paid %1$s</string>
+
+    <string name="tab_reports">Reports</string>
+    <string name="reports_title">Reports</string>
+    <string name="reports_export_pdf">Download PDF</string>
+    <string name="reports_no_entries">No entries in this period</string>
+    <string name="reports_entry_count">%1$s entries</string>
+    <string name="reports_top_debtors">Biggest dues</string>
+    <string name="reports_pdf_generated">PDF created</string>
+    <string name="reports_pdf_failed">Couldn\'t create PDF</string>
+    <string name="pdf_title">%1$s — Ledger Report</string>
+    <string name="pdf_generated_at">Generated: %1$s</string>
+
+    <string name="tab_settings">Settings</string>
+    <string name="settings_digit_section">Digit Style</string>
+    <string name="settings_digit_bengali">বাংলা (১২৩)</string>
+    <string name="settings_digit_latin">ইংরেজি (123)</string>
+
+    <string name="settings_language_section">Language</string>
+    <string name="settings_language_bangla">বাংলা</string>
+    <string name="settings_language_english">English</string>
+
+    <string name="settings_lock_section">App Lock</string>
+    <string name="settings_lock_toggle">Lock the app with a PIN</string>
+    <string name="settings_lock_change_pin">Change PIN</string>
+    <string name="settings_lock_hint">Asks for the PIN when the app opens or comes back from the background</string>
+
+    <string name="lock_set_title">Set a new PIN</string>
+    <string name="lock_confirm_title">Re-enter the PIN</string>
+    <string name="lock_enter_title">Enter PIN</string>
+    <string name="lock_mismatch">The PINs didn\'t match, try again</string>
+    <string name="lock_wrong">Wrong PIN</string>
+    <string name="lock_backspace">Backspace</string>
+
+    <string name="settings_backup_section">Backup</string>
+    <string name="settings_backup_export">Back up</string>
+    <string name="settings_backup_export_hint">Save all entries to an encrypted file</string>
+    <string name="settings_backup_import">Restore from backup</string>
+    <string name="settings_backup_import_hint">Bring back entries from a backup file</string>
+
+    <string name="backup_passphrase_new_title">Set a password</string>
+    <string name="backup_passphrase_confirm_title">Re-enter the password</string>
+    <string name="backup_passphrase_restore_title">Enter the backup password</string>
+    <string name="backup_passphrase_hint">Remember this password — you\'ll need it to restore the backup</string>
+    <string name="backup_passphrase_min">Enter at least 4 characters</string>
+    <string name="backup_passphrase_mismatch">The passwords didn\'t match</string>
+    <string name="backup_passphrase_placeholder">Password</string>
+
+    <string name="backup_restore_warning_title">Warning</string>
+    <string name="backup_restore_warning_body">Restoring a backup will delete all current entries and replace them with the backup\'s entries. Continue?</string>
+
+    <string name="backup_export_success">Backup saved</string>
+    <string name="backup_import_success">Entries restored</string>
+    <string name="backup_wrong_passphrase">Wrong password</string>
+    <string name="backup_bad_file">This isn\'t a valid backup file</string>
+</resources>

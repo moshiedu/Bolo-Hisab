@@ -1,0 +1,15 @@
+*.iml
+.gradle/
+.idea/
+.kotlin/
+local.properties
+build/
+captures/
+.externalNativeBuild/
+.cxx/
+.DS_Store
+
+# Downloaded on first build (see README)
+app/libs/*.aar
+app/libs/*.part
+app/src/main/assets/models/

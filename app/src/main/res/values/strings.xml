@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">বলো হিসাব</string>
+
+    <string name="tab_ledger">হিসাব</string>
+    <string name="tab_customers">কাস্টমার</string>
+
+    <string name="stat_sales">বিক্রি</string>
+    <string name="stat_credit">বাকি দেওয়া</string>
+    <string name="stat_collected">আদায়</string>
+    <string name="stat_expense">খরচ</string>
+    <string name="today_label">আজ, %1$s</string>
+
+    <string name="recent_entries">সাম্প্রতিক হিসাব</string>
+    <string name="empty_title">এখনো কোনো হিসাব নেই</string>
+    <string name="empty_body">মাইক চেপে ধরে একবারে বলুন: নাম, জিনিস, দাম আর কত দিল।</string>
+    <string name="empty_example_1">রহিম ২ কেজি চাল ১২০ টাকা আর ১ লিটার তেল ২০০ টাকা, ১০০ দিয়েছে</string>
+    <string name="empty_example_2">করিম ভাই ৫০০ টাকা জমা দিয়েছে</string>
+    <string name="empty_example_3">রহিমের কত বাকি?</string>
+
+    <string name="mic_hint">চেপে ধরে বলুন</string>
+    <string name="mic_listening">শুনছি… ছেড়ে দিলেই হিসাব হবে</string>
+    <string name="mic_tap_hint">কথা বলার সময় বোতাম চেপে ধরে রাখুন</string>
+    <string name="mic_content_description">চেপে ধরে কথা বলুন</string>
+    <string name="voice_field_mic_content_description">ভয়েস টাইপ করুন</string>
+    <string name="voice_field_mic_listening_content_description">শুনছি… আবার চাপুন থামাতে</string>
+    <string name="type_entry">টাইপ করে লিখুন</string>
+    <string name="type_entry_hint">যেমন: করিম ৫০০ টাকা জমা দিয়েছে</string>
+
+    <string name="action_ok">ঠিক আছে</string>
+    <string name="action_cancel">বাতিল</string>
+    <string name="action_save">সেভ করুন</string>
+    <string name="action_update">হালনাগাদ করুন</string>
+    <string name="action_undo">আনডু</string>
+    <string name="action_continue">এগিয়ে যান</string>
+
+    <string name="saved">সেভ হয়েছে</string>
+    <string name="entry_updated">হালনাগাদ হয়েছে</string>
+    <string name="undone">হিসাবটি বাদ দেওয়া হয়েছে</string>
+    <string name="not_understood">বুঝতে পারিনি: “%1$s”</string>
+    <string name="nothing_heard">কিছু শোনা যায়নি, আবার বলুন</string>
+    <string name="mic_permission_needed">মাইক ছাড়া ভয়েস এন্ট্রি হবে না। টাইপ করেও লিখতে পারেন।</string>
+    <string name="model_missing">ভয়েস মডেল এখনো নেই। আপাতত টাইপ করে হিসাব লিখুন।</string>
+    <string name="model_loading">ভয়েস চালু হচ্ছে…</string>
+    <string name="model_failed">ভয়েস চালু করা যায়নি: %1$s</string>
+    <string name="save_failed">সেভ করা যায়নি: %1$s</string>
+
+    <string name="type_cash_sale">নগদ বিক্রি</string>
+    <string name="type_credit_sale">বাকি</string>
+    <string name="type_payment">জমা</string>
+    <string name="type_expense">খরচ</string>
+
+    <string name="review_title">হিসাবটি মিলিয়ে নিন</string>
+    <string name="review_customer">কাস্টমার</string>
+    <string name="review_customer_new">নতুন কাস্টমার</string>
+    <string name="review_items">পণ্য</string>
+    <string name="review_item_name">পণ্য</string>
+    <string name="review_item_qty">পরিমাণ</string>
+    <string name="review_item_price">দাম</string>
+    <string name="review_add_item">পণ্য যোগ করুন</string>
+    <string name="review_remove_item">পণ্যটি মুছুন</string>
+    <string name="review_total">মোট</string>
+    <string name="review_paid">জমা দিয়েছে</string>
+    <string name="review_due">বাকি থাকবে</string>
+    <string name="review_amount">টাকার পরিমাণ</string>
+    <string name="review_note">বিবরণ</string>
+    <string name="review_check">যাচাই করুন</string>
+    <string name="review_need_customer">বাকি বা জমার জন্য কাস্টমারের নাম দিন</string>
+    <string name="review_need_amount">টাকার পরিমাণ দিন</string>
+    <string name="review_paid_too_much">জমা মোটের চেয়ে বেশি হতে পারে না</string>
+    <string name="review_delete">মুছে ফেলুন</string>
+    <string name="review_delete_confirm_title">মুছে ফেলবেন?</string>
+    <string name="review_delete_confirm_body">এই হিসাবটি মুছে ফেলা হবে। পরে \"আনডু\" দিয়ে ফিরিয়ে আনতে পারবেন।</string>
+    <string name="review_history_title">সম্পাদনার ইতিহাস</string>
+    <string name="review_history_row">%1$s — আগে ছিল %2$s</string>
+
+    <string name="customers_search">নাম খুঁজুন</string>
+    <string name="customers_total_due">মোট পাওনা</string>
+    <string name="customers_count">%1$s জন কাস্টমার</string>
+    <string name="customers_empty">কাস্টমার নেই। বাকি বা জমার হিসাব বললে কাস্টমার নিজে থেকেই যোগ হবে।</string>
+    <string name="customer_settled">পরিশোধিত</string>
+    <string name="customer_no_activity">কোনো লেনদেন নেই</string>
+    <string name="customer_last_activity">শেষ লেনদেন %1$s</string>
+    <string name="customer_send_reminder">তাগাদা পাঠান</string>
+    <string name="customer_history">লেনদেন</string>
+    <string name="reminder_message">প্রিয় %1$s, আপনার বাকি %2$s। সুবিধামতো পরিশোধ করার অনুরোধ রইল। ধন্যবাদ।</string>
+    <string name="back">ফিরে যান</string>
+
+    <string name="customer_add">কাস্টমার যোগ করুন</string>
+    <string name="customer_edit">কাস্টমার সম্পাদনা</string>
+    <string name="customer_name">নাম</string>
+    <string name="customer_phone">ফোন নম্বর</string>
+    <string name="customer_address">ঠিকানা</string>
+    <string name="customer_pick_contact">কন্টাক্ট থেকে বেছে নিন</string>
+    <string name="customer_call">কল করুন</string>
+    <string name="customer_name_required">নাম দিন</string>
+    <string name="customer_change_photo">প্রোফাইল ছবি পরিবর্তন করুন</string>
+    <string name="customer_choose_gallery">গ্যালারি থেকে বেছে নিন</string>
+    <string name="customer_take_photo">ছবি তুলুন</string>
+
+    <string name="tab_stock">স্টক</string>
+    <string name="stock_title">স্টক</string>
+    <string name="stock_add">পণ্য যোগ করুন</string>
+    <string name="stock_edit">পণ্য সম্পাদনা</string>
+    <string name="stock_name">পণ্যের নাম</string>
+    <string name="stock_unit">একক</string>
+    <string name="stock_unit_none">একক নেই</string>
+    <string name="stock_opening_qty">শুরুর পরিমাণ</string>
+    <string name="stock_low_threshold">কম স্টক সতর্কতা</string>
+    <string name="stock_low_threshold_hint">এর নিচে নামলে তালিকায় লাল দেখাবে</string>
+    <string name="stock_restock">স্টক যোগ করুন</string>
+    <string name="stock_restock_qty">কত যোগ করবেন</string>
+    <string name="stock_low_label">স্টক কম</string>
+    <string name="stock_empty">কোনো পণ্য যোগ করা হয়নি। + চেপে পণ্য যোগ করুন, বিক্রির সময় নাম মিললে স্টক নিজে থেকেই কমবে।</string>
+    <string name="stock_search">পণ্য খুঁজুন</string>
+    <string name="stock_count">%1$s টি পণ্য</string>
+    <string name="stock_current">বর্তমান</string>
+
+    <string name="answer_title">উত্তর</string>
+    <string name="answer_due">%1$s-এর বাকি %2$s</string>
+    <string name="answer_no_due">%1$s-এর কোনো বাকি নেই</string>
+    <string name="answer_unknown_customer">এই নামে কোনো কাস্টমার পাওয়া যায়নি</string>
+    <string name="answer_sales">%1$s বিক্রি %2$s\nবাকি দেওয়া %3$s · আদায় %4$s</string>
+    <string name="answer_top_debtors">সবচেয়ে বেশি বাকি</string>
+    <string name="answer_no_debtors">কারো কাছে বাকি নেই</string>
+    <string name="period_today">আজ</string>
+    <string name="period_yesterday">গতকাল</string>
+    <string name="period_week">এই সপ্তাহে</string>
+    <string name="period_month">এই মাসে</string>
+
+    <string name="entry_walk_in">নগদ বিক্রি</string>
+    <string name="entry_expense">খরচ</string>
+    <string name="entry_payment_from">%1$s জমা দিয়েছে</string>
+    <string name="entry_paid_part">জমা %1$s</string>
+
+    <string name="tab_reports">রিপোর্ট</string>
+    <string name="reports_title">রিপোর্ট</string>
+    <string name="reports_export_pdf">PDF ডাউনলোড</string>
+    <string name="reports_no_entries">এই সময়ে কোনো হিসাব নেই</string>
+    <string name="reports_entry_count">%1$s টি হিসাব</string>
+    <string name="reports_top_debtors">সবচেয়ে বেশি বাকি</string>
+    <string name="reports_pdf_generated">PDF তৈরি হয়েছে</string>
+    <string name="reports_pdf_failed">PDF তৈরি করা যায়নি</string>
+    <string name="pdf_title">%1$s — হিসাব রিপোর্ট</string>
+    <string name="pdf_generated_at">তৈরি হয়েছে: %1$s</string>
+
+    <string name="tab_settings">সেটিংস</string>
+    <string name="settings_digit_section">সংখ্যার ধরন</string>
+    <string name="settings_digit_bengali">বাংলা (১২৩)</string>
+    <string name="settings_digit_latin">ইংরেজি (123)</string>
+
+    <string name="settings_language_section">ভাষা</string>
+    <string name="settings_language_bangla">বাংলা</string>
+    <string name="settings_language_english">English</string>
+
+    <string name="settings_lock_section">অ্যাপ লক</string>
+    <string name="settings_lock_toggle">পিন দিয়ে অ্যাপ লক করুন</string>
+    <string name="settings_lock_change_pin">পিন পরিবর্তন করুন</string>
+    <string name="settings_lock_hint">অ্যাপ খুললে বা পেছন থেকে ফিরলে পিন চাইবে</string>
+
+    <string name="lock_set_title">নতুন পিন দিন</string>
+    <string name="lock_confirm_title">পিন আবার দিন</string>
+    <string name="lock_enter_title">পিন দিন</string>
+    <string name="lock_mismatch">পিন দুটো মিলেনি, আবার চেষ্টা করুন</string>
+    <string name="lock_wrong">ভুল পিন</string>
+    <string name="lock_backspace">মুছুন</string>
+
+    <string name="settings_backup_section">ব্যাকআপ</string>
+    <string name="settings_backup_export">ব্যাকআপ নিন</string>
+    <string name="settings_backup_export_hint">এনক্রিপ্টেড ফাইলে সব হিসাব সংরক্ষণ করুন</string>
+    <string name="settings_backup_import">ব্যাকআপ থেকে ফিরিয়ে আনুন</string>
+    <string name="settings_backup_import_hint">একটি ব্যাকআপ ফাইল থেকে হিসাব ফিরিয়ে আনুন</string>
+
+    <string name="backup_passphrase_new_title">একটি পাসওয়ার্ড দিন</string>
+    <string name="backup_passphrase_confirm_title">পাসওয়ার্ড আবার দিন</string>
+    <string name="backup_passphrase_restore_title">ব্যাকআপের পাসওয়ার্ড দিন</string>
+    <string name="backup_passphrase_hint">এই পাসওয়ার্ড মনে রাখুন, ব্যাকআপ ফিরিয়ে আনতে লাগবে</string>
+    <string name="backup_passphrase_min">কমপক্ষে ৪ অক্ষর দিন</string>
+    <string name="backup_passphrase_mismatch">পাসওয়ার্ড দুটো মিলেনি</string>
+    <string name="backup_passphrase_placeholder">পাসওয়ার্ড</string>
+
+    <string name="backup_restore_warning_title">সাবধান</string>
+    <string name="backup_restore_warning_body">ব্যাকআপ ফিরিয়ে আনলে বর্তমান সব হিসাব মুছে ব্যাকআপের হিসাব দিয়ে বদলে যাবে। এগিয়ে যাবেন?</string>
+
+    <string name="backup_export_success">ব্যাকআপ সেভ হয়েছে</string>
+    <string name="backup_import_success">হিসাব ফিরিয়ে আনা হয়েছে</string>
+    <string name="backup_wrong_passphrase">ভুল পাসওয়ার্ড</string>
+    <string name="backup_bad_file">এটি সঠিক ব্যাকআপ ফাইল নয়</string>
+</resources>
