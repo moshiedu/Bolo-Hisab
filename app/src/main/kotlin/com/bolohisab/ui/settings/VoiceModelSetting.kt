@@ -64,8 +64,16 @@ class VoiceModelViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val (bytes, installed) = withContext(Dispatchers.IO) { installer.bundledBytes() to installer.isInstalled() }
-            _state.update { it.copy(available = bytes > 0 || installed, installed = installed, sizeMb = bytes / MB) }
+            val (bytes, installed, usable) = withContext(Dispatchers.IO) {
+                Triple(installer.bundledBytes(), installer.isInstalled(), installer.canUseHotwords())
+            }
+            // A copy that can never turn hotwords on (e.g. from an earlier failed try) only wastes space.
+            if (installed && !usable) {
+                runCatching { installer.remove(); speech.reload() }
+            }
+            _state.update {
+                it.copy(available = usable && bytes > 0, installed = installed && usable, sizeMb = bytes / MB)
+            }
         }
     }
 

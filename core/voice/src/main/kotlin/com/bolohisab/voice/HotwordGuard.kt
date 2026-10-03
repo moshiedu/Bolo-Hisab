@@ -53,15 +53,18 @@ internal object HotwordGuard {
         val vocab = files.bpeVocab?.let(::File) ?: return false
         val tokens = File(files.tokens)
         if (!vocab.isFile || vocab.length() == 0L || !tokens.isFile) return false
-        val vocabOk = runCatching {
-            vocab.bufferedReader().useLines { lines ->
-                lines.take(50).filter { it.isNotBlank() }.all { line ->
-                    val cols = line.split('\t')
-                    cols.size >= 2 && cols[1].trim().toFloatOrNull() != null
-                }
-            }
-        }.getOrDefault(false)
-        val hasWordPieces = runCatching { tokens.bufferedReader().useLines { l -> l.any { '▁' in it } } }.getOrDefault(false)
-        return vocabOk && hasWordPieces
+        return runCatching { isBpe(tokens.readLines(), vocab.readLines()) }.getOrDefault(false)
     }
+
+    /** The BPE check on file contents, shared with the Settings switch's check of the bundled model. */
+    fun isBpe(tokenLines: List<String>, vocabLines: List<String>): Boolean {
+        val vocabOk = vocabLines.isNotEmpty() && vocabLines.asSequence().take(50).filter { it.isNotBlank() }.all { line ->
+            val cols = line.split(TAB)
+            cols.size >= 2 && cols[1].trim().toFloatOrNull() != null
+        }
+        return vocabOk && tokenLines.any { WORD_START in it }
+    }
+
+    private const val TAB = '\t'
+    private const val WORD_START = '\u2581' // sentencepiece "▁"
 }

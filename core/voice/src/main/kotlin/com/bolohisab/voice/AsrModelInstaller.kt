@@ -29,6 +29,21 @@ class AsrModelInstaller(private val context: Context) {
 
     fun isInstalled(): Boolean = AsrModelLocator(context).locateOnDisk() != null
 
+    /**
+     * Whether copying the bundled model would actually turn hotwords on: it must be a BPE model
+     * with its vocab, and hotword loading must not have failed on this phone before. When false,
+     * the Settings switch is not offered at all.
+     */
+    fun canUseHotwords(): Boolean {
+        if (HotwordGuard.wasDisabled(context)) return false
+        val names = bundledFiles()
+        val vocab = names.firstOrNull { it.endsWith(".vocab") } ?: return false
+        if ("tokens.txt" !in names) return false
+        fun lines(name: String) =
+            context.assets.open("${AsrModelLocator.ASSET_DIR}/$name").bufferedReader().use { it.readLines() }
+        return runCatching { HotwordGuard.isBpe(lines("tokens.txt"), lines(vocab)) }.getOrDefault(false)
+    }
+
     /** Size of the bundled model files, or 0 when the APK carries none. */
     fun bundledBytes(): Long = bundledFiles().sumOf { name ->
         runCatching { context.assets.openFd("${AsrModelLocator.ASSET_DIR}/$name").use { it.length } }
