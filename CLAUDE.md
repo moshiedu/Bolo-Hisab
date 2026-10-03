@@ -52,7 +52,10 @@ the khata basics ship in v1, with voice-first entry as the differentiator.
 - UI: tight, professional Material 3; amber tint marks fields the parser was unsure of.
 
 ## Testing
-`./gradlew :core:nlu:test :core:data:testDebugUnitTest :app:testDebugUnitTest`.
-In cloud sessions `dl.google.com`, GitHub release downloads and foojay are blocked, so Android modules
-cannot build there; pure-JVM code (nlu, `PinHasher`, `PinLockout`, `BackupCrypto`, `BackupModels`)
-can be tested with a scratch Kotlin/JVM Gradle project pointing at those sources.
+- Full: `./gradlew :core:nlu:test :core:data:testDebugUnitTest :app:testDebugUnitTest`.
+- Pure-Kotlin only (no Android SDK needed): `./gradlew -p tools/jvm-check test` — parser, typing help,
+  lexicon CSVs + sentence corpus, PIN hashing/lockout, backup crypto/format.
+- Cloud sessions: `.claude/hooks/session-start.sh` prepares `tools/jvm-check` and, when
+  `dl.google.com` is reachable, installs the Android SDK and warms the full build. The full build also
+  needs github.com (sherpa AAR, model) and api.foojay.io (JDK 21 daemon toolchain); while those are
+  blocked by the network policy, only `tools/jvm-check` runs.
