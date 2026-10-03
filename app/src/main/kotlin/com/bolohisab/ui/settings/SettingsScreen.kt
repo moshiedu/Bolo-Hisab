@@ -14,6 +14,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.CloudDownload
 import androidx.compose.material.icons.rounded.CloudUpload
+import androidx.compose.material.icons.rounded.Fingerprint
 import androidx.compose.material.icons.rounded.Keyboard
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.LockOpen
@@ -41,6 +42,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -50,6 +52,7 @@ import com.bolohisab.data.settings.AppLanguage
 import com.bolohisab.data.settings.DigitStyle
 import com.bolohisab.ui.components.PinKeypadScreen
 import com.bolohisab.ui.components.formWidth
+import com.bolohisab.ui.lock.Biometrics
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
@@ -65,6 +68,7 @@ fun SettingsScreen(
     val digitStyle by displayViewModel.digitStyle.collectAsStateWithLifecycle()
     val language by displayViewModel.language.collectAsStateWithLifecycle()
     val banglishTyping by displayViewModel.banglishTyping.collectAsStateWithLifecycle()
+    val context = LocalContext.current
 
     if (state.pinSetup != PinSetupStep.Hidden) {
         PinSetupOverlay(state, viewModel)
@@ -150,6 +154,25 @@ fun SettingsScreen(
                         Switch(checked = state.lockEnabled, onCheckedChange = viewModel::onToggleLock)
                     },
                 )
+                if (state.lockEnabled && Biometrics.available(context)) {
+                    val title = stringResource(R.string.settings_biometric_toggle)
+                    val cancel = stringResource(R.string.action_cancel)
+                    ListItem(
+                        leadingContent = { Icon(Icons.Rounded.Fingerprint, contentDescription = null) },
+                        headlineContent = { Text(title) },
+                        supportingContent = { Text(stringResource(R.string.settings_biometric_hint)) },
+                        trailingContent = {
+                            Switch(
+                                checked = state.biometricEnabled,
+                                onCheckedChange = { on ->
+                                    // Turning it on needs one successful scan, so it is known to work.
+                                    if (on) Biometrics.prompt(context, title, cancel) { viewModel.setBiometric(true) }
+                                    else viewModel.setBiometric(false)
+                                },
+                            )
+                        },
+                    )
+                }
                 if (state.lockEnabled) {
                     ListItem(
                         leadingContent = { Icon(Icons.Rounded.Password, contentDescription = null) },

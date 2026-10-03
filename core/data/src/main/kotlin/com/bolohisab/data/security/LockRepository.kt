@@ -48,6 +48,22 @@ class LockRepository @Inject constructor(
     /** End of the current lockout in epoch millis, or null when PINs are accepted. */
     val lockedUntil: Flow<Long?> = dataStore.data.map { activeLockout(it) }.distinctUntilChanged()
 
+    /** Fingerprint unlock, on top of the PIN (which always works as the fallback). */
+    val biometricEnabled: Flow<Boolean> =
+        dataStore.data.map { it[KEY_ENABLED] == true && it[KEY_BIOMETRIC] == true }.distinctUntilChanged()
+
+    suspend fun setBiometric(enabled: Boolean) {
+        dataStore.edit { it[KEY_BIOMETRIC] = enabled }
+    }
+
+    /** A successful fingerprint counts like a correct PIN: wrong-PIN count and lockout are cleared. */
+    suspend fun onBiometricUnlock() {
+        dataStore.edit {
+            it.remove(KEY_FAILURES)
+            it.remove(KEY_LOCKED_UNTIL)
+        }
+    }
+
     suspend fun setPin(pin: String) {
         val salted = withContext(Dispatchers.Default) { PinHasher.hash(pin) }
         dataStore.edit { prefs ->
@@ -65,6 +81,7 @@ class LockRepository @Inject constructor(
             prefs.remove(KEY_HASH)
             prefs.remove(KEY_FAILURES)
             prefs.remove(KEY_LOCKED_UNTIL)
+            prefs.remove(KEY_BIOMETRIC)
             prefs[KEY_ENABLED] = false
         }
     }
@@ -127,5 +144,6 @@ class LockRepository @Inject constructor(
         val KEY_HASH = stringPreferencesKey("lock_pin_hash")
         val KEY_FAILURES = intPreferencesKey("lock_failures")
         val KEY_LOCKED_UNTIL = longPreferencesKey("lock_locked_until")
+        val KEY_BIOMETRIC = booleanPreferencesKey("lock_biometric")
     }
 }

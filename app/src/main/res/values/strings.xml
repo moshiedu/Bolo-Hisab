@@ -187,6 +187,11 @@
     <string name="lock_mismatch">পিন দুটো মিলেনি, আবার চেষ্টা করুন</string>
     <string name="lock_wrong">ভুল পিন</string>
     <string name="lock_wait">অনেকবার ভুল পিন। %1$s পরে আবার চেষ্টা করুন</string>
+    <string name="lock_biometric_title">বলো হিসাব খুলুন</string>
+    <string name="lock_biometric_use_pin">পিন দিন</string>
+    <string name="lock_use_fingerprint">আঙুলের ছাপ দিয়ে খুলুন</string>
+    <string name="settings_biometric_toggle">আঙুলের ছাপে খুলুন</string>
+    <string name="settings_biometric_hint">পিনের বদলে আঙুলের ছাপ; পিনও সবসময় কাজ করবে</string>
     <string name="lock_backspace">মুছুন</string>
 
     <string name="settings_backup_section">ব্যাকআপ</string>

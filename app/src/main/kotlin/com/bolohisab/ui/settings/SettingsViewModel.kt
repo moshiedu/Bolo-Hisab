@@ -20,6 +20,7 @@ sealed interface PinSetupStep {
 
 data class SettingsUiState(
     val lockEnabled: Boolean = false,
+    val biometricEnabled: Boolean = false,
     val pinSetup: PinSetupStep = PinSetupStep.Hidden,
     val mismatch: Boolean = false,
 )
@@ -36,6 +37,9 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             lockRepository.enabled.collect { enabled -> _state.update { it.copy(lockEnabled = enabled) } }
         }
+        viewModelScope.launch {
+            lockRepository.biometricEnabled.collect { on -> _state.update { it.copy(biometricEnabled = on) } }
+        }
     }
 
     fun onToggleLock(checked: Boolean) {
@@ -44,6 +48,11 @@ class SettingsViewModel @Inject constructor(
         } else {
             viewModelScope.launch { lockRepository.disable() }
         }
+    }
+
+    /** Called after a successful fingerprint scan (to turn it on) or directly (to turn it off). */
+    fun setBiometric(enabled: Boolean) {
+        viewModelScope.launch { lockRepository.setBiometric(enabled) }
     }
 
     fun onChangePin() = _state.update { it.copy(pinSetup = PinSetupStep.EnterNew, mismatch = false) }

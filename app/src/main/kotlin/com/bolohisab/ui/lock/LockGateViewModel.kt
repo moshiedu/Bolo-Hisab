@@ -22,6 +22,7 @@ data class LockGateState(
     /** Epoch millis until which the keypad is disabled after too many wrong PINs. */
     val lockedUntil: Long? = null,
     val checking: Boolean = false,
+    val biometricEnabled: Boolean = false,
 )
 
 /**
@@ -45,6 +46,9 @@ class LockGateViewModel @Inject constructor(
                 lockEnabled = enabled
                 _state.update { it.copy(loading = false, locked = enabled) }
             }
+        }
+        viewModelScope.launch {
+            lockRepository.biometricEnabled.collect { on -> _state.update { it.copy(biometricEnabled = on) } }
         }
         viewModelScope.launch {
             lockRepository.normalizeLockout()
@@ -79,6 +83,11 @@ class LockGateViewModel @Inject constructor(
     }
 
     fun consumeWrongPin() = _state.update { it.copy(wrongPin = false) }
+
+    fun onBiometricSuccess() {
+        _state.update { it.copy(locked = false, wrongPin = false, lockedUntil = null) }
+        viewModelScope.launch { runCatching { lockRepository.onBiometricUnlock() } }
+    }
 
     /** Called by the screen once its countdown reaches zero. */
     fun onLockoutEnded() = _state.update { it.copy(lockedUntil = null) }

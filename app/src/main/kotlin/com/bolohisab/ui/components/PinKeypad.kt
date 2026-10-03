@@ -51,6 +51,8 @@ fun PinKeypadScreen(
     pinLength: Int = 4,
     /** False while the lock screen is in a wrong-PIN lockout or still checking a PIN. */
     enabled: Boolean = true,
+    /** Shown in the keypad's empty bottom-left cell, e.g. the fingerprint button. */
+    extraKey: (@Composable () -> Unit)? = null,
 ) {
     var pin by remember { mutableStateOf("") }
     val shake = remember { Animatable(0f) }
@@ -105,7 +107,7 @@ fun PinKeypadScreen(
                 Spacer(Modifier.height(12.dp))
             }
             Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-                Box(Modifier.size(64.dp))
+                Box(Modifier.size(64.dp), contentAlignment = Alignment.Center) { extraKey?.invoke() }
                 DigitKey("0", enabled) { press('0') }
                 Box(
                     Modifier.size(64.dp).clip(CircleShape).clickable(enabled = enabled && pin.isNotEmpty()) { pin = pin.dropLast(1) },

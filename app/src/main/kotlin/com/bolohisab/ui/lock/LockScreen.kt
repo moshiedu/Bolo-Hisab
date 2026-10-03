@@ -1,6 +1,12 @@
 package com.bolohisab.ui.lock
 
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Fingerprint
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -9,7 +15,9 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bolohisab.R
@@ -33,6 +41,15 @@ fun LockScreen(viewModel: LockGateViewModel = hiltViewModel()) {
         }
     }
 
+    // Fingerprint first when it's on: the prompt opens by itself each time the app locks, and the
+    // keypad's fingerprint key brings it back after "use PIN" or a cancel.
+    val context = LocalContext.current
+    val title = stringResource(R.string.lock_biometric_title)
+    val usePin = stringResource(R.string.lock_biometric_use_pin)
+    val fingerprint = state.biometricEnabled && Biometrics.available(context)
+    fun askFingerprint() = Biometrics.prompt(context, title, usePin, viewModel::onBiometricSuccess)
+    LaunchedEffect(fingerprint) { if (fingerprint) askFingerprint() }
+
     val lockedOut = until != null && remainingSec > 0
     Surface(Modifier.fillMaxSize()) {
         PinKeypadScreen(
@@ -47,6 +64,20 @@ fun LockScreen(viewModel: LockGateViewModel = hiltViewModel()) {
             onSubmit = viewModel::tryUnlock,
             onErrorShown = viewModel::consumeWrongPin,
             enabled = !lockedOut && !state.checking,
+            extraKey = if (fingerprint) {
+                {
+                    IconButton(onClick = ::askFingerprint, modifier = Modifier.size(64.dp)) {
+                        Icon(
+                            Icons.Rounded.Fingerprint,
+                            contentDescription = stringResource(R.string.lock_use_fingerprint),
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(32.dp),
+                        )
+                    }
+                }
+            } else {
+                null
+            },
         )
     }
 }

@@ -187,6 +187,11 @@
     <string name="lock_mismatch">The PINs didn\'t match, try again</string>
     <string name="lock_wrong">Wrong PIN</string>
     <string name="lock_wait">Too many wrong PINs. Try again in %1$s</string>
+    <string name="lock_biometric_title">Unlock Bolo Hisab</string>
+    <string name="lock_biometric_use_pin">Use PIN</string>
+    <string name="lock_use_fingerprint">Unlock with fingerprint</string>
+    <string name="settings_biometric_toggle">Unlock with fingerprint</string>
+    <string name="settings_biometric_hint">Use your fingerprint instead of the PIN; the PIN always works too</string>
     <string name="lock_backspace">Backspace</string>
 
     <string name="settings_backup_section">Backup</string>

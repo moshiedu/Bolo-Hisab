@@ -2,13 +2,13 @@ package com.bolohisab
 
 import android.content.Context
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.fragment.app.FragmentActivity
 import com.bolohisab.data.security.DatabaseKeyProvider
 import com.bolohisab.ui.format.LocaleBootstrap
 import com.bolohisab.ui.lock.AppLockGate
@@ -18,8 +18,9 @@ import com.bolohisab.ui.settings.DisplaySettingsSync
 import com.bolohisab.ui.theme.BoloHisabTheme
 import dagger.hilt.android.AndroidEntryPoint
 
+/** A FragmentActivity (still a ComponentActivity) because the fingerprint prompt needs one. */
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+class MainActivity : FragmentActivity() {
     override fun attachBaseContext(newBase: Context) {
         super.attachBaseContext(LocaleBootstrap.wrap(newBase, LocaleBootstrap.read(newBase)))
     }
