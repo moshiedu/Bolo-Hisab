@@ -64,7 +64,20 @@ class LockRepository @Inject constructor(
     }
 
     /** Checks [pin] while honouring the lockout, and re-hashes a legacy hash on success. */
+    /**
+     * Pulls a lockout end that is impossibly far ahead (the phone's clock went backwards) in to
+     * the longest real lockout, and saves it, so the countdown shown actually ends.
+     */
+    suspend fun normalizeLockout() {
+        dataStore.edit { prefs ->
+            val stored = prefs[KEY_LOCKED_UNTIL] ?: return@edit
+            val end = PinLockout.effectiveEnd(stored, clock.millis())
+            if (end == null) prefs.remove(KEY_LOCKED_UNTIL) else if (end != stored) prefs[KEY_LOCKED_UNTIL] = end
+        }
+    }
+
     suspend fun verify(pin: String): UnlockResult {
+        normalizeLockout()
         val prefs = dataStore.data.first()
         activeLockout(prefs)?.let { return UnlockResult.LockedOut(it) }
         val salt = prefs[KEY_SALT]
@@ -99,15 +112,8 @@ class LockRepository @Inject constructor(
         return UnlockResult.Wrong(until)
     }
 
-    /**
-     * The stored lockout end, if it is still in the future. Capped at [PinLockout.MAX_MILLIS]
-     * from now, so a phone clock set backwards cannot lock the shopkeeper out for days.
-     */
-    private fun activeLockout(prefs: Preferences): Long? {
-        val until = prefs[KEY_LOCKED_UNTIL] ?: return null
-        val now = clock.millis()
-        return if (until > now) minOf(until, now + PinLockout.MAX_MILLIS) else null
-    }
+    /** The stored lockout end, if it is still in the future (see [PinLockout.effectiveEnd]). */
+    private fun activeLockout(prefs: Preferences): Long? = PinLockout.effectiveEnd(prefs[KEY_LOCKED_UNTIL], clock.millis())
 
     private companion object {
         val KEY_ENABLED = booleanPreferencesKey("lock_enabled")

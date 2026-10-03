@@ -47,6 +47,7 @@ class LockGateViewModel @Inject constructor(
             }
         }
         viewModelScope.launch {
+            lockRepository.normalizeLockout()
             lockRepository.lockedUntil.collect { until -> _state.update { it.copy(lockedUntil = until) } }
         }
     }
@@ -59,12 +60,21 @@ class LockGateViewModel @Inject constructor(
         if (_state.value.checking) return
         _state.update { it.copy(checking = true) }
         viewModelScope.launch {
-            when (val result = lockRepository.verify(pin)) {
-                UnlockResult.Unlocked -> _state.update { it.copy(locked = false, wrongPin = false, lockedUntil = null) }
-                is UnlockResult.Wrong -> _state.update { it.copy(wrongPin = true, lockedUntil = result.lockedUntil) }
-                is UnlockResult.LockedOut -> _state.update { it.copy(lockedUntil = result.until) }
+            try {
+                when (val result = lockRepository.verify(pin)) {
+                    UnlockResult.Unlocked -> _state.update { it.copy(locked = false, wrongPin = false, lockedUntil = null) }
+                    is UnlockResult.Wrong -> _state.update { it.copy(wrongPin = true, lockedUntil = result.lockedUntil) }
+                    is UnlockResult.LockedOut -> _state.update { it.copy(lockedUntil = result.until) }
+                }
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                // A storage error must not leave the keypad dead (finally re-enables it). Not shown
+                // as "wrong PIN": the PIN may well have been right.
+                android.util.Log.w("LockGate", "PIN check failed", e)
+            } finally {
+                _state.update { it.copy(checking = false) }
             }
-            _state.update { it.copy(checking = false) }
         }
     }
 

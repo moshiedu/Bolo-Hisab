@@ -16,8 +16,16 @@ class LedgerParser(
     /** Learned fixes for words speech recognition keeps getting wrong, see [Corrections]. */
     corrections: Map<String, String> = emptyMap(),
 ) {
-    private val fixes: Map<String, String> =
-        corrections.entries.associate { (wrong, right) -> BanglaText.key(wrong) to BanglaText.key(right) }
+    /**
+     * Learned fixes, minus any whose heard word is now a real customer's name: once a customer
+     * "রোহিম" exists, a fix রোহিম → রহিম learned earlier would post their entries to someone else.
+     */
+    private val fixes: Map<String, String> = run {
+        val customerWords = customers.flatMap { c -> c.name.split(' ').map(BanglaText::key) }.toSet()
+        corrections.entries
+            .associate { (wrong, right) -> BanglaText.key(wrong) to BanglaText.key(right) }
+            .filterKeys { it !in customerWords }
+    }
 
     private val matcher = CustomerMatcher(customers)
     private val itemWords: Set<String> = Lexicon.goods + knownItems.map(BanglaText::key)

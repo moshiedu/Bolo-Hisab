@@ -120,4 +120,19 @@ class LearningTest {
         assertTrue(pairs.toString(), (nfc("কেজি") to nfc("চাল")) in pairs)
         assertTrue(pairs.toString(), (TypingMemory.NUMBER to nfc("টাকা")) in pairs)
     }
+
+    @Test fun goodsAreNeverLearnedAsMishearings() {
+        // ডাল and চাল sound alike; one fix must not turn every later ডাল into চাল.
+        assertTrue(Corrections.isProtected("ডাল"))
+        val heard = parse("রহিম ১ কেজি ডাল ১২০ টাকা")
+        val saved = heard.copy(items = heard.items.map { it.copy(name = "চাল") })
+        assertTrue(Corrections.learn(heard, saved, listOf(KnownCustomer(1, "রহিম")), emptyList()).isEmpty())
+    }
+
+    @Test fun aFixStopsOnceTheHeardNameBecomesARealCustomer() {
+        val fixes = mapOf("রোহিম" to "রহিম")
+        val customers = listOf(KnownCustomer(1, "রহিম"), KnownCustomer(2, "রোহিম"))
+        val d = parse("রোহিমের ৫০০ টাকা বাকি", customers, fixes)
+        assertEquals(2L, (d.customer as CustomerRef.Existing).id)
+    }
 }

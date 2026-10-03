@@ -14,11 +14,15 @@ import com.bolohisab.nlu.typing.PhoneticKey
  */
 object Corrections {
 
-    /** Words that keep their meaning no matter what: grammar, units, numbers, dialect words. */
+    /**
+     * Words that keep their meaning no matter what: grammar, units, numbers, dialect words and
+     * known goods. Goods matter most: ডাল and চাল sound alike, and one wrong lesson would turn
+     * every later "ডাল" into "চাল", corrupting items and stock.
+     */
     fun isProtected(word: String): Boolean {
         val w = BanglaText.key(word)
         if (w.isEmpty() || w.any { it.isDigit() }) return true
-        if (w in Lexicon.allWords || QuantityUnit.of(w) != null) return true
+        if (w in Lexicon.allWords || w in Lexicon.goods || QuantityUnit.of(w) != null) return true
         if (Dialect.variants.any { BanglaText.key(it.word) == w || BanglaText.key(it.standard) == w }) return true
         return BanglaNumbers.parse(listOf(w)).any { it is Token.Num }
     }
