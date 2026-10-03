@@ -127,3 +127,40 @@ data class TypeTotalRow(
     @ColumnInfo(name = "paid") val paid: Long,
     @ColumnInfo(name = "count") val count: Int,
 )
+
+// ------------------------------------------------------------------ learning (typing help)
+
+/** A Banglish spelling and the Bangla (or the Latin itself) the shopkeeper picked for it. */
+@Entity(tableName = "typing_choices", primaryKeys = ["typed", "text"])
+data class TypingChoiceEntity(
+    val typed: String,
+    val text: String,
+    val count: Int,
+    @ColumnInfo(name = "last_used") val lastUsed: Long,
+)
+
+/** How often a word appears in saved entries. */
+@Entity(tableName = "word_usage")
+data class WordUsageEntity(
+    @PrimaryKey val word: String,
+    val count: Int,
+    @ColumnInfo(name = "last_used") val lastUsed: Long,
+)
+
+/** Which word followed which in saved entries; [prev] may be the "<number>" slot. */
+@Entity(tableName = "word_pairs", primaryKeys = ["prev", "next"])
+data class WordPairEntity(
+    val prev: String,
+    val next: String,
+    val count: Int,
+    @ColumnInfo(name = "last_used") val lastUsed: Long,
+)
+
+/** A word speech recognition got wrong and what the shopkeeper corrected it to. */
+@Entity(tableName = "corrections")
+data class CorrectionEntity(
+    @PrimaryKey val heard: String,
+    val fixed: String,
+    val count: Int,
+    @ColumnInfo(name = "last_used") val lastUsed: Long,
+)

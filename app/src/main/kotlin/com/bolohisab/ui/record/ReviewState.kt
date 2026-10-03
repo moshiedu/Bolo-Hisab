@@ -2,6 +2,7 @@ package com.bolohisab.ui.record
 
 import com.bolohisab.data.EntryHistorySnapshot
 import com.bolohisab.data.LedgerEntry
+import com.bolohisab.nlu.CustomerMatcher
 import com.bolohisab.nlu.CustomerRef
 import com.bolohisab.nlu.EntryDraft
 import com.bolohisab.nlu.EntryType
@@ -43,6 +44,13 @@ data class ReviewState(
     val history: List<EntryHistorySnapshot> = emptyList(),
     /** Set only when [customerName] came from the contact picker, so save() can attach it. */
     val pickedPhone: String? = null,
+    /**
+     * A total that differs from the item prices, e.g. "মোট ৩০০" after a discount on items
+     * worth ৳320. While set it wins over the item sum; null means the total follows the items.
+     */
+    val totalOverride: String? = null,
+    /** What the parser made of the transcript, kept so a save can learn from the shopkeeper's fixes. */
+    val parsed: EntryDraft? = null,
 ) {
     val showsItems: Boolean get() = type == EntryType.CASH_SALE || type == EntryType.CREDIT_SALE
     val needsCustomer: Boolean get() = type == EntryType.CREDIT_SALE || type == EntryType.PAYMENT_RECEIVED
@@ -50,10 +58,16 @@ data class ReviewState(
 
     val total: Poisha
         get() {
-            val itemSum = items.sumOf { Bn.parseAmount(it.price)?.let(Poisha::ofTaka)?.value ?: 0L }
-            return if (showsItems && itemSum > 0) Poisha(itemSum)
-            else Bn.parseAmount(amount)?.let(Poisha::ofTaka) ?: Poisha.ZERO
+            val sum = itemSum
+            if (showsItems && sum.value > 0) {
+                return totalOverride?.let(Bn::parseAmount)?.let(Poisha::ofTaka) ?: sum
+            }
+            return Bn.parseAmount(amount)?.let(Poisha::ofTaka) ?: Poisha.ZERO
         }
+
+    /** What the priced item rows add up to. */
+    val itemSum: Poisha
+        get() = Poisha(items.sumOf { Bn.parseAmount(it.price)?.let(Poisha::ofTaka)?.value ?: 0L })
 
     val paidAmount: Poisha
         get() = when (type) {
@@ -78,15 +92,25 @@ data class ReviewState(
         return copy(type = newType, amount = carried, uncertain = uncertain - Field.TYPE)
     }
 
-    fun withCustomer(name: String, known: List<KnownCustomer>): ReviewState {
-        val exact = known.firstOrNull { it.name.trim().equals(name.trim(), ignoreCase = true) }
-        return copy(customerName = name, matchedCustomerId = exact?.id, uncertain = uncertain - Field.CUSTOMER, pickedPhone = null)
-    }
+    fun withCustomer(name: String, known: List<KnownCustomer>): ReviewState =
+        copy(customerName = name, matchedCustomerId = exactMatch(name, known)?.id, uncertain = uncertain - Field.CUSTOMER, pickedPhone = null)
 
     /** Sets the customer name and phone together, from the system contact picker. */
-    fun withContactPicked(name: String, phone: String, known: List<KnownCustomer>): ReviewState {
-        val exact = known.firstOrNull { it.name.trim().equals(name.trim(), ignoreCase = true) }
-        return copy(customerName = name, matchedCustomerId = exact?.id, uncertain = uncertain - Field.CUSTOMER, pickedPhone = phone)
+    fun withContactPicked(name: String, phone: String, known: List<KnownCustomer>): ReviewState =
+        copy(customerName = name, matchedCustomerId = exactMatch(name, known)?.id, uncertain = uncertain - Field.CUSTOMER, pickedPhone = phone)
+
+    /**
+     * An existing customer whose name is close to, but not exactly, what was typed ("রহীম" for
+     * "রহিম"), so the card can ask "did you mean" before a near-duplicate customer is created.
+     */
+    fun nearMatch(known: List<KnownCustomer>): KnownCustomer? {
+        if (!isNewCustomer) return null
+        return CustomerMatcher(known).match(customerName.trim(), threshold = 0.75)?.customer
+    }
+
+    private fun exactMatch(name: String, known: List<KnownCustomer>): KnownCustomer? {
+        val key = CustomerMatcher.nameKey(name)
+        return if (key.isEmpty()) null else known.firstOrNull { CustomerMatcher.nameKey(it.name) == key }
     }
 
     fun toDraft(): EntryDraft {
@@ -118,6 +142,12 @@ data class ReviewState(
     }
 
     companion object {
+        /** The stored/spoken total as an override, only when it disagrees with the priced items. */
+        private fun overrideFor(total: Poisha, items: List<ItemLine>): String? {
+            val sum = items.sumOf { it.price?.value ?: 0L }
+            return if (sum > 0 && total.value > 0 && total.value != sum) Bn.editable(total) else null
+        }
+
         fun from(draft: EntryDraft): ReviewState {
             val existingId = (draft.customer as? CustomerRef.Existing)?.id
             val items = draft.items.mapIndexed { i, it ->
@@ -140,6 +170,8 @@ data class ReviewState(
                 note = draft.note,
                 transcript = draft.transcript,
                 uncertain = draft.uncertain,
+                totalOverride = overrideFor(draft.total, draft.items),
+                parsed = draft,
             )
         }
 
@@ -172,6 +204,7 @@ data class ReviewState(
                 uncertain = emptySet(),
                 editingEntryId = entry.id,
                 history = history,
+                totalOverride = overrideFor(entry.total, entry.items),
             )
         }
     }

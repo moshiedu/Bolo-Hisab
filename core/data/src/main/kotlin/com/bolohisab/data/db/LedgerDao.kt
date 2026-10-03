@@ -163,14 +163,41 @@ interface LedgerDao {
     @Query("DELETE FROM customers")
     suspend fun clearCustomers()
 
-    /** Wipes the ledger and reloads it from a backup, preserving the original ids so cross-references still line up. */
+    @Query("SELECT * FROM entry_history")
+    suspend fun allHistoryOnce(): List<EntryHistoryEntity>
+
+    @Insert
+    suspend fun insertHistories(history: List<EntryHistoryEntity>)
+
+    @Query("DELETE FROM products")
+    suspend fun clearProducts()
+
+    @Insert
+    suspend fun insertProducts(products: List<ProductEntity>)
+
+    /**
+     * Wipes the ledger and reloads it from a backup, preserving the original ids so cross-references
+     * still line up. [products] null leaves the current stock list alone (a backup made before
+     * products were exported).
+     */
     @Transaction
-    suspend fun replaceAll(customers: List<CustomerEntity>, entries: List<EntryEntity>, items: List<EntryItemEntity>) {
-        clearEntries() // cascades entry_items
+    suspend fun replaceAll(
+        customers: List<CustomerEntity>,
+        entries: List<EntryEntity>,
+        items: List<EntryItemEntity>,
+        history: List<EntryHistoryEntity>,
+        products: List<ProductEntity>?,
+    ) {
+        clearEntries() // cascades entry_items and entry_history
         clearCustomers()
         insertCustomers(customers)
         insertEntries(entries)
         if (items.isNotEmpty()) insertItems(items)
+        if (history.isNotEmpty()) insertHistories(history)
+        if (products != null) {
+            clearProducts()
+            if (products.isNotEmpty()) insertProducts(products)
+        }
     }
 
     // -------------------------------------------------------------- products

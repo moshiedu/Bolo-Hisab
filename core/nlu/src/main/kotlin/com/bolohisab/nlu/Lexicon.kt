@@ -73,6 +73,26 @@ internal object Lexicon {
         "উনি", "সে", "তিনি", "উনার", "ওর", "তার",
     )
 
+    /** Every grammar word above, for checks that must never touch them (see [Corrections]). */
+    val allWords: Set<String> by lazy {
+        money + credit + received + cash + sale + expense + expenseTopics + total + conjunctions + honorifics +
+            question + due + today + yesterday + month + week + most + who + genericCustomer + filler
+    }
+
+    /**
+     * Every word known to name goods: [items] plus the grocery, pharmacy and hardware rows of the
+     * team-edited `words.csv`, so a new product word added there is understood by voice entry too.
+     */
+    val goods: Set<String> by lazy {
+        items + LexiconCsv.load("words.csv")
+            .filter { it["category"] in GOODS_CATEGORIES }
+            .map { BanglaText.key(it["word"]) }
+            .filter { it.isNotEmpty() && ' ' !in it && it !in filler }
+    }
+
+    /** `words.csv` categories whose words are goods. */
+    val GOODS_CATEGORIES = setOf("grocery", "pharmacy", "hardware")
+
     /** Common Bangladeshi grocery words, so they are never mistaken for customer names. */
     val items = set(
         "চাল", "ডাল", "তেল", "চিনি", "লবণ", "লবন", "আটা", "ময়দা", "সুজি", "ডিম", "দুধ", "সাবান",

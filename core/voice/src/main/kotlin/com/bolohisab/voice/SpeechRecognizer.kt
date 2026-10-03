@@ -20,6 +20,12 @@ sealed interface SpeechEvent {
     data class Final(val text: String) : SpeechEvent
 }
 
+/**
+ * The microphone could not be opened or stopped delivering audio, usually because another app
+ * (a call, WhatsApp voice note, another recorder) holds it.
+ */
+class MicUnavailableException : IllegalStateException("Microphone is busy or unavailable")
+
 /** Offline speech-to-text. One listening session at a time. */
 interface SpeechRecognizer {
     val state: StateFlow<ModelState>
@@ -37,4 +43,7 @@ interface SpeechRecognizer {
 
     /** Ends the current recording; the flow then emits its final text. */
     fun stop()
+
+    /** Drops the loaded model and loads it again, e.g. after it was copied to or removed from storage. */
+    suspend fun reload()
 }

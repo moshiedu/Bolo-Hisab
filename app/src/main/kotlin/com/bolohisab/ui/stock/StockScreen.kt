@@ -46,6 +46,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bolohisab.R
 import com.bolohisab.data.Product
+import com.bolohisab.nlu.typing.TypingContext
 import com.bolohisab.ui.components.VoiceOutlinedTextField
 import com.bolohisab.ui.format.Bn
 import com.bolohisab.ui.theme.LedgerTheme
@@ -78,6 +79,7 @@ fun StockScreen(viewModel: StockViewModel = hiltViewModel()) {
                         placeholder = { Text(stringResource(R.string.stock_search)) },
                         leadingIcon = { Icon(Icons.Rounded.Search, contentDescription = null) },
                         singleLine = true,
+                        typing = TypingContext.ITEM,
                         shape = RoundedCornerShape(16.dp),
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
                     )

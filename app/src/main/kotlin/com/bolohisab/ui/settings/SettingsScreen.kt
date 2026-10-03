@@ -9,9 +9,14 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.VolumeUp
 import androidx.compose.material.icons.rounded.CloudDownload
 import androidx.compose.material.icons.rounded.CloudUpload
+import androidx.compose.material.icons.rounded.Fingerprint
+import androidx.compose.material.icons.rounded.Keyboard
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.LockOpen
 import androidx.compose.material.icons.rounded.Password
@@ -38,6 +43,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -47,6 +53,7 @@ import com.bolohisab.data.settings.AppLanguage
 import com.bolohisab.data.settings.DigitStyle
 import com.bolohisab.ui.components.PinKeypadScreen
 import com.bolohisab.ui.components.formWidth
+import com.bolohisab.ui.lock.Biometrics
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
@@ -61,6 +68,9 @@ fun SettingsScreen(
     val backup by backupViewModel.state.collectAsStateWithLifecycle()
     val digitStyle by displayViewModel.digitStyle.collectAsStateWithLifecycle()
     val language by displayViewModel.language.collectAsStateWithLifecycle()
+    val banglishTyping by displayViewModel.banglishTyping.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    val speakAnswers by displayViewModel.speakAnswers.collectAsStateWithLifecycle()
 
     if (state.pinSetup != PinSetupStep.Hidden) {
         PinSetupOverlay(state, viewModel)
@@ -102,7 +112,7 @@ fun SettingsScreen(
         snackbarHost = { SnackbarHost(snackbar) },
     ) { padding ->
         Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.TopCenter) {
-            Column(Modifier.formWidth()) {
+            Column(Modifier.formWidth().verticalScroll(rememberScrollState()).padding(bottom = 24.dp)) {
                 Text(
                     stringResource(R.string.settings_digit_section),
                     style = MaterialTheme.typography.titleSmall,
@@ -118,6 +128,23 @@ fun SettingsScreen(
                     modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 20.dp, bottom = 12.dp),
                 )
                 LanguageSelector(language, displayViewModel::setLanguage)
+                ListItem(
+                    leadingContent = { Icon(Icons.Rounded.Keyboard, contentDescription = null) },
+                    headlineContent = { Text(stringResource(R.string.settings_banglish_toggle)) },
+                    supportingContent = { Text(stringResource(R.string.settings_banglish_hint)) },
+                    trailingContent = {
+                        Switch(checked = banglishTyping, onCheckedChange = displayViewModel::setBanglishTyping)
+                    },
+                    modifier = Modifier.padding(top = 8.dp),
+                )
+                ListItem(
+                    leadingContent = { Icon(Icons.AutoMirrored.Rounded.VolumeUp, contentDescription = null) },
+                    headlineContent = { Text(stringResource(R.string.settings_speak_answers)) },
+                    supportingContent = { Text(stringResource(R.string.settings_speak_answers_hint)) },
+                    trailingContent = { Switch(checked = speakAnswers, onCheckedChange = displayViewModel::setSpeakAnswers) },
+                )
+                LearnedWordsItem()
+                VoiceModelSetting()
 
                 Text(
                     stringResource(R.string.settings_lock_section),
@@ -135,6 +162,25 @@ fun SettingsScreen(
                         Switch(checked = state.lockEnabled, onCheckedChange = viewModel::onToggleLock)
                     },
                 )
+                if (state.lockEnabled && Biometrics.available(context)) {
+                    val title = stringResource(R.string.settings_biometric_toggle)
+                    val cancel = stringResource(R.string.action_cancel)
+                    ListItem(
+                        leadingContent = { Icon(Icons.Rounded.Fingerprint, contentDescription = null) },
+                        headlineContent = { Text(title) },
+                        supportingContent = { Text(stringResource(R.string.settings_biometric_hint)) },
+                        trailingContent = {
+                            Switch(
+                                checked = state.biometricEnabled,
+                                onCheckedChange = { on ->
+                                    // Turning it on needs one successful scan, so it is known to work.
+                                    if (on) Biometrics.prompt(context, title, cancel) { viewModel.setBiometric(true) }
+                                    else viewModel.setBiometric(false)
+                                },
+                            )
+                        },
+                    )
+                }
                 if (state.lockEnabled) {
                     ListItem(
                         leadingContent = { Icon(Icons.Rounded.Password, contentDescription = null) },

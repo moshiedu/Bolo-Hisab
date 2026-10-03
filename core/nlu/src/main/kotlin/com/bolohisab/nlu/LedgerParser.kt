@@ -13,12 +13,25 @@ package com.bolohisab.nlu
 class LedgerParser(
     customers: List<KnownCustomer> = emptyList(),
     knownItems: Collection<String> = emptyList(),
+    /** Learned fixes for words speech recognition keeps getting wrong, see [Corrections]. */
+    corrections: Map<String, String> = emptyMap(),
 ) {
+    /**
+     * Learned fixes, minus any whose heard word is now a real customer's name: once a customer
+     * "রোহিম" exists, a fix রোহিম → রহিম learned earlier would post their entries to someone else.
+     */
+    private val fixes: Map<String, String> = run {
+        val customerWords = customers.flatMap { c -> c.name.split(' ').map(BanglaText::key) }.toSet()
+        corrections.entries
+            .associate { (wrong, right) -> BanglaText.key(wrong) to BanglaText.key(right) }
+            .filterKeys { it !in customerWords }
+    }
+
     private val matcher = CustomerMatcher(customers)
-    private val itemWords: Set<String> = Lexicon.items + knownItems.map(BanglaText::key)
+    private val itemWords: Set<String> = Lexicon.goods + knownItems.map(BanglaText::key)
 
     fun parse(transcript: String): ParseResult {
-        val words = BanglaText.tokenize(transcript)
+        val words = Corrections.apply(BanglaText.tokenize(transcript).map(Dialect::standardize), fixes)
         val tokens = BanglaNumbers.parse(words)
         if (tokens.none { it !is Token.Sep }) return ParseResult.Unrecognized(transcript)
 

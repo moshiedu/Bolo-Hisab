@@ -13,6 +13,11 @@ data class BackupPayload(
     val exportedAt: Long,
     val customers: List<BackupCustomer>,
     val entries: List<BackupEntry>,
+    /** Absent in version 1 files, which predate stock tracking in backups. */
+    val products: List<BackupProduct> = emptyList(),
+    val history: List<BackupHistory> = emptyList(),
+    /** What the typing help learned. Null in files before version 3: restoring keeps the phone's own. */
+    val learning: BackupLearning? = null,
 )
 
 @Serializable
@@ -21,8 +26,11 @@ data class BackupCustomer(
     val name: String,
     val phone: String?,
     val address: String? = null,
+    /** Where the photo lived on the old phone; informational only, never used as a path on restore. */
     val photoPath: String? = null,
     val createdAt: Long,
+    /** The photo itself (Base64 JPEG, see [BackupPhotos]); absent before version 4. */
+    val photo: String? = null,
 )
 
 @Serializable
@@ -48,4 +56,47 @@ data class BackupItem(
     val pricePoisha: Long?,
 )
 
-const val BACKUP_FORMAT_VERSION = 1
+@Serializable
+data class BackupProduct(
+    val id: Long,
+    val name: String,
+    val unit: String?,
+    val stockQty: Double,
+    val lowStockThreshold: Double?,
+    val createdAt: Long,
+)
+
+@Serializable
+data class BackupHistory(
+    val entryId: Long,
+    val changedAt: Long,
+    val type: String,
+    val totalPoisha: Long,
+    val paidPoisha: Long,
+    val balanceDelta: Long,
+    val note: String?,
+    val transcript: String,
+)
+
+@Serializable
+data class BackupLearning(
+    val choices: List<BackupChoice> = emptyList(),
+    val words: List<BackupWordUsage> = emptyList(),
+    val pairs: List<BackupWordPair> = emptyList(),
+    val corrections: List<BackupCorrection> = emptyList(),
+)
+
+@Serializable
+data class BackupChoice(val typed: String, val text: String, val count: Int, val lastUsed: Long)
+
+@Serializable
+data class BackupWordUsage(val word: String, val count: Int, val lastUsed: Long)
+
+@Serializable
+data class BackupWordPair(val prev: String, val next: String, val count: Int, val lastUsed: Long)
+
+@Serializable
+data class BackupCorrection(val heard: String, val fixed: String, val count: Int, val lastUsed: Long)
+
+/** 2 adds products and entry edit history; 3 adds what the typing help learned; 4 adds customer photos. */
+const val BACKUP_FORMAT_VERSION = 4

@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import com.bolohisab.R
 import com.bolohisab.data.Customer
+import com.bolohisab.nlu.typing.TypingContext
 import com.bolohisab.ui.components.Avatar
 import com.bolohisab.ui.components.VoiceOutlinedTextField
 import java.io.File
@@ -144,6 +145,7 @@ fun CustomerDialog(
                     label = { Text(stringResource(R.string.customer_name)) },
                     leadingIcon = { Icon(Icons.Rounded.Person, contentDescription = null) },
                     singleLine = true,
+                    typing = TypingContext.CUSTOMER,
                     modifier = Modifier.focusRequester(focus),
                 )
                 OutlinedTextField(

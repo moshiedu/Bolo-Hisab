@@ -29,6 +29,7 @@ include(":app")
 include(":core:data")
 include(":core:nlu")
 include(":core:voice")
+include(":asr_model")
 
 // sherpa-onnx (offline speech engine) ships as an AAR on GitHub, not on Maven Central.
 // Fetch it once into app/libs so a fresh clone builds with no manual steps.

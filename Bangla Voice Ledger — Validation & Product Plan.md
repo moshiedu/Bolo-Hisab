@@ -20,6 +20,25 @@ TallyKhata's own site puts Bangladesh at 12 million small businesses. The strong
 
 Not yet validated: whether shopkeepers will switch from TallyKhata, and what they complain about today. Play Store review pages did not load for this research, so review mining and 10 shop interviews are still open (see Risks).
 
+## Status update (Oct 3, 2026)
+
+After comparing with TallyKhata before the first release, v1 scope was widened: the khata basics that shopkeepers expect (stock, customer profiles) ship in v1, and voice-first entry stays the differentiator. Typing became a second differentiator.
+
+| Area | State in the app |
+| --- | --- |
+| Voice entry, confirm card, four entry types, voice questions (answered on screen and aloud) | Built |
+| Customer ledger with address and photo, tagada share | Built |
+| Stock (products, restock, low-stock alerts, automatic stock moves on sales) | Built (was out of scope in the original plan) |
+| Reports with PDF export | Built |
+| Encrypted backup file (ledger, stock, history, learning, photos) | Built; Google Drive backup not yet |
+| App lock | PIN with escalating lockout and fingerprint unlock built |
+| Banglish (Avro-style) typing with ledger vocabulary, sentences and the shop's own names | Built |
+| On-device learning from typing picks and confirm-card corrections | Built |
+| Dialect words mapped to standard Bangla before parsing | Built (text side); voice-side needs regional recordings |
+| Lexicon and test sentences as team-edited CSVs | Built (`docs/lexicon.md`) |
+| Speech model via Play Asset Delivery | Not yet; hotwords meanwhile need an opt-in 90 MB copy |
+| Monetization (ads, Pro, sponsorship) | Not built; the sections below are unchanged pending decisions |
+
 ## Monetization
 
 Charging Bangladeshi shopkeepers inside the app is the weak point: it must go through Google Play Billing, and most of them cannot pay there. Revenue therefore rests on ads first, business deals second, and Play purchases from the minority who can pay.
@@ -53,7 +72,10 @@ The MVP does one job better than anyone: record a sale, a credit or a payment by
 9. **App lock.** PIN or fingerprint.
 10. **Typing fallback.** Every voice action has a two-tap manual path.
 
-Left out of v1: inventory, invoices, staff accounts, payments/QR and multi-device sync. TallyKhata and Hishabee already own those; competing there dilutes the wedge.
+11. **Banglish typing.** Type "rohim 2 kg chal" and pick রহিম, কেজি, চাল from an Avro-style strip that knows ledger words, whole sentences and the shop's own customers and products; it learns each shop's picks and corrections.
+12. **Stock.** Products with stock levels and low-stock alerts; sales move stock automatically. (Added to v1 after comparing with TallyKhata.)
+
+Left out of v1: invoices, staff accounts, payments/QR and multi-device sync.
 
 ## Free vs Pro
 
@@ -79,7 +101,7 @@ Everything runs offline: a 90 MB Bangla speech model, then plain rules, small en
 Every path ends at the confirm card, so a wrong parse costs one tap, not a wrong balance.
 
 - **Speech model.** Use sherpa-onnx with the Bengali streaming Zipformer released in February 2026. A developer [measured it](https://dev.to/devksarkar/i-tried-to-build-a-bengali-voice-dialer-for-android-here-is-what-actually-happened-and-how-i-40ak) at about 90 MB, under a second for a 3-second command on a Pixel 10's CPU, and always in Bengali script. Speed on a budget phone is not yet measured. Whisper failed the same test: whisper-small wrote Bengali in Devanagari, and the 988 MB turbo model took 80 seconds through whisper.cpp.
-- **Customer names.** sherpa-onnx supports [hotwords](https://k2-fsa.github.io/sherpa/onnx/hotwords/index.html) for transducer models when decoding with modified\_beam\_search. Regenerate the hotwords file from the customer list whenever it changes, so "মিলি" is not heard as a common word.
+- **Customer names.** sherpa-onnx supports [hotwords](https://k2-fsa.github.io/sherpa/onnx/hotwords/index.html) for transducer models when decoding with modified\_beam\_search. The app passes customers, products, past items and the goods from `words.csv` on every recording. Hotwords need the model on disk, so until it ships as an asset pack they are behind an opt-in Settings toggle that copies the model (about 90 MB).
 - **Number fixer.** Hand-written Bangla inverse text normalization: number words and compounds (একশো পঞ্চাশ), fractions (দেড়, আড়াই, সাড়ে), units (কেজি, লিটার, পিস, হালি, ডজন), টাকা, and Bengali digits ০–৯. This is the part to unit-test hardest.
 - **Rule parser.** A keyword grammar: entry type from words like বাকি, দিল/দিয়েছে, জমা, খরচ; each item as quantity, unit, name, price. Fuzzy-match names against the customer list.
 - **FunctionGemma fallback (v1.1).** Google's 270M function-calling model is about [283 MB](https://soniqo.audio/guides/function-calls) and emits a strict call grammar. Out of the box it scored only 58% in one [developer test](https://medium.com/google-developer-experts/on-device-function-calling-with-functiongemma-39f7407e5d83), rising sharply after fine-tuning on a few hundred examples. It is English-tuned, so fine-tune it on synthetic Bangla ledger sentences and ship it as an optional download.
@@ -99,7 +121,7 @@ The record module is the product; the other screens exist to serve it.
 - **Speech.** The sherpa-onnx Android AAR (JNI). Build for arm64-v8a and armeabi-v7a, to cover older budget phones.
 - **Model delivery.** Ship the \~90 MB Bangla model as an install-time Play Asset Delivery pack, so voice works offline from the first launch. FunctionGemma arrives later as an on-demand pack.
 - **Background work.** WorkManager for the Pro Drive backup and model downloads only.
-- **Testing.** A JSONL corpus of spoken sentences with expected entries drives parser unit tests in CI; screenshot tests guard the confirm card.
+- **Testing.** `test_sentences.csv`, real sentences with expected type, customer, total and paid, drives parser tests (`SentenceCorpusTest`); the lexicon CSVs are validated by `LexiconFilesTest`. Pure-Kotlin tests also run without the Android SDK (`./gradlew -p tools/jvm-check test`).
 - **Backend.** None in v1. Add a small Laravel + MySQL service only when business sponsorship needs sponsor codes and a dashboard.
 
 ## Screens and UX rules

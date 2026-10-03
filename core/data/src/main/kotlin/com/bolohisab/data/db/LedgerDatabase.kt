@@ -8,12 +8,14 @@ import androidx.sqlite.db.SupportSQLiteDatabase
     entities = [
         CustomerEntity::class, EntryEntity::class, EntryItemEntity::class,
         EntryHistoryEntity::class, ProductEntity::class,
+        TypingChoiceEntity::class, WordUsageEntity::class, WordPairEntity::class, CorrectionEntity::class,
     ],
-    version = 4,
+    version = 5,
     exportSchema = true,
 )
 abstract class LedgerDatabase : RoomDatabase() {
     abstract fun ledgerDao(): LedgerDao
+    abstract fun learningDao(): LearningDao
 
     companion object {
         const val NAME = "ledger.db"
@@ -59,6 +61,28 @@ abstract class LedgerDatabase : RoomDatabase() {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE customers ADD COLUMN address TEXT")
                 db.execSQL("ALTER TABLE customers ADD COLUMN photo_path TEXT")
+            }
+        }
+
+        /** Adds the typing-help learning tables. Existing tables are untouched. */
+        val MIGRATION_4_5 = object : androidx.room.migration.Migration(4, 5) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `typing_choices` (`typed` TEXT NOT NULL, `text` TEXT NOT NULL, " +
+                        "`count` INTEGER NOT NULL, `last_used` INTEGER NOT NULL, PRIMARY KEY(`typed`, `text`))",
+                )
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `word_usage` (`word` TEXT NOT NULL, `count` INTEGER NOT NULL, " +
+                        "`last_used` INTEGER NOT NULL, PRIMARY KEY(`word`))",
+                )
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `word_pairs` (`prev` TEXT NOT NULL, `next` TEXT NOT NULL, " +
+                        "`count` INTEGER NOT NULL, `last_used` INTEGER NOT NULL, PRIMARY KEY(`prev`, `next`))",
+                )
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `corrections` (`heard` TEXT NOT NULL, `fixed` TEXT NOT NULL, " +
+                        "`count` INTEGER NOT NULL, `last_used` INTEGER NOT NULL, PRIMARY KEY(`heard`))",
+                )
             }
         }
     }

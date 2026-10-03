@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.room.Room
+import com.bolohisab.data.db.LearningDao
 import com.bolohisab.data.db.LedgerDao
 import com.bolohisab.data.db.LedgerDatabase
 import com.bolohisab.data.security.DatabaseKeyProvider
@@ -35,12 +36,18 @@ object DataModule {
         val factory = SupportOpenHelperFactory(DatabaseKeyProvider(context).passphrase())
         return Room.databaseBuilder(context, LedgerDatabase::class.java, LedgerDatabase.NAME)
             .openHelperFactory(factory)
-            .addMigrations(LedgerDatabase.MIGRATION_1_2, LedgerDatabase.MIGRATION_2_3, LedgerDatabase.MIGRATION_3_4)
+            .addMigrations(
+                LedgerDatabase.MIGRATION_1_2, LedgerDatabase.MIGRATION_2_3,
+                LedgerDatabase.MIGRATION_3_4, LedgerDatabase.MIGRATION_4_5,
+            )
             .build()
     }
 
     @Provides
     fun ledgerDao(db: LedgerDatabase): LedgerDao = db.ledgerDao()
+
+    @Provides
+    fun learningDao(db: LedgerDatabase): LearningDao = db.learningDao()
 
     @Provides
     @Singleton

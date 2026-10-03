@@ -44,6 +44,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bolohisab.R
 import com.bolohisab.data.CustomerBalance
+import com.bolohisab.nlu.typing.TypingContext
 import com.bolohisab.ui.components.Avatar
 import com.bolohisab.ui.components.VoiceOutlinedTextField
 import com.bolohisab.ui.components.animatedTaka
@@ -80,6 +81,7 @@ fun CustomersScreen(onOpen: (Long) -> Unit, viewModel: CustomersViewModel = hilt
                         placeholder = { Text(stringResource(R.string.customers_search)) },
                         leadingIcon = { Icon(Icons.Rounded.Search, contentDescription = null) },
                         singleLine = true,
+                        typing = TypingContext.CUSTOMER,
                         shape = RoundedCornerShape(16.dp),
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
                     )

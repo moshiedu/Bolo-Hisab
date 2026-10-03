@@ -205,4 +205,39 @@ class LedgerParserTest {
         assertTrue(parser.parse("") is ParseResult.Unrecognized)
         assertTrue(parser.parse("হ্যালো কেমন আছেন") is ParseResult.Unrecognized)
     }
+
+    @Test fun spokenTotalBelowItemPricesIsKeptAndFlagged() {
+        val d = draft("রহিম ২ কেজি চাল ১২০ টাকা আর ১ লিটার তেল ২০০ টাকা, মোট ৩০০ টাকা, ১০০ দিয়েছে")
+        assertEquals(taka(320), Poisha(d.items.sumOf { it.price!!.value }))
+        assertEquals(taka(300), d.total)
+        assertEquals(taka(200), d.due)
+        assertTrue(Field.TOTAL in d.uncertain)
+    }
+
+    @Test fun regionalWordForTakaParsesLikeTheStandard() {
+        val chattogram = draft("রহিম ৫০০ টেঁয়া বাকি")
+        assertEquals(EntryType.CREDIT_SALE, chattogram.type)
+        assertEquals(taka(500), chattogram.total)
+        assertEquals(taka(500), draft("রহিম ৫০০ টেখা বাকি").total)
+    }
+
+    @Test fun colloquialHowMuchIsAQuestion() {
+        val q = parser.parse("রহিমের কয় টাকা বাকি")
+        assertTrue(q is ParseResult.Query)
+        assertEquals(1L, (((q as ParseResult.Query).query as LedgerQuery.CustomerDue).customer as CustomerRef.Existing).id)
+    }
+
+    @Test fun separatePossessiveAfterANameIsStillADueQuestion() {
+        // The typing help offers "এর কত বাকি" after a name, written as its own word.
+        val q = parser.parse("রহিম এর কত বাকি")
+        assertTrue("got $q", q is ParseResult.Query)
+        assertEquals(1L, (((q as ParseResult.Query).query as LedgerQuery.CustomerDue).customer as CustomerRef.Existing).id)
+    }
+
+    @Test fun separateKeAfterANameStillRecordsCredit() {
+        val d = draft("রহিম কে ৫০০ টাকা বাকি দিলাম")
+        assertEquals(EntryType.CREDIT_SALE, d.type)
+        assertEquals(1L, (d.customer as CustomerRef.Existing).id)
+        assertEquals(taka(500), d.total)
+    }
 }

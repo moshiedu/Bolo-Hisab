@@ -39,6 +39,7 @@
     <string name="undone">Entry deleted</string>
     <string name="not_understood">Couldn\'t understand: “%1$s”</string>
     <string name="nothing_heard">Didn\'t hear anything, try again</string>
+    <string name="mic_busy">Another app is using the microphone. End the call or recording and try again.</string>
     <string name="mic_permission_needed">Voice entry needs the microphone. You can type entries instead.</string>
     <string name="model_missing">Voice model isn\'t ready yet. Type your entries for now.</string>
     <string name="model_loading">Starting voice…</string>
@@ -65,6 +66,8 @@
     <string name="review_amount">Amount</string>
     <string name="review_note">Note</string>
     <string name="review_check">Check</string>
+    <string name="review_items_sum">Items add up to %1$s</string>
+    <string name="review_use_items_sum">Use the items total</string>
     <string name="review_need_customer">Enter the customer\'s name for credit or a payment</string>
     <string name="review_need_amount">Enter the amount</string>
     <string name="review_paid_too_much">The amount paid can\'t be more than the total</string>
@@ -152,6 +155,29 @@
     <string name="settings_language_section">Language</string>
     <string name="settings_language_bangla">বাংলা</string>
     <string name="settings_language_english">English</string>
+    <string name="settings_banglish_toggle">Banglish to Bangla suggestions</string>
+    <string name="settings_banglish_hint">Type in English letters (chal, taka, rahim) to get Bangla words and sentences; space accepts the first</string>
+    <string name="answer_listen">Listen</string>
+    <string name="settings_speak_answers">Read answers aloud</string>
+    <string name="settings_speak_answers_hint">Speaks the answer to questions like \"How much does Rahim owe?\" (needs a Bangla voice on the phone)</string>
+    <string name="learned_title">Learned words and fixes</string>
+    <string name="learned_summary">%1$s fixes · %2$s typing picks</string>
+    <string name="learned_hint">The app learns from your corrections and typing. It all stays on this phone. Remove anything it got wrong.</string>
+    <string name="learned_corrections">Voice fixes</string>
+    <string name="learned_corrections_empty">Nothing learned yet. Fix a misheard name or product on the confirm card and it shows up here.</string>
+    <string name="learned_choices">Typing picks</string>
+    <string name="learned_choices_empty">Pick a suggestion while typing in English letters and it shows up here.</string>
+    <string name="learned_times">%1$s times</string>
+    <string name="learned_forget">Forget</string>
+    <string name="learned_clear_all">Clear all</string>
+    <string name="learned_clear_confirm">Everything the app has learned will be removed. Your ledger, customers and products are not affected.</string>
+    <string name="voice_boost_toggle">Better recognition of your names</string>
+    <string name="voice_boost_hint">Voice will catch your customers, products and common goods more reliably. Uses %1$s MB more storage.</string>
+    <string name="voice_boost_on">On: voice favours your customers and products</string>
+    <string name="voice_boost_working">Setting up…</string>
+    <string name="voice_boost_no_space">Not enough space: needs %1$s MB, %2$s MB free</string>
+    <string name="voice_boost_failed">Could not turn on: %1$s</string>
+    <string name="voice_boost_unsupported">This phone can\'t use it. Voice works as before, and the extra storage was freed.</string>
 
     <string name="settings_lock_section">App Lock</string>
     <string name="settings_lock_toggle">Lock the app with a PIN</string>
@@ -163,6 +189,12 @@
     <string name="lock_enter_title">Enter PIN</string>
     <string name="lock_mismatch">The PINs didn\'t match, try again</string>
     <string name="lock_wrong">Wrong PIN</string>
+    <string name="lock_wait">Too many wrong PINs. Try again in %1$s</string>
+    <string name="lock_biometric_title">Unlock Bolo Hisab</string>
+    <string name="lock_biometric_use_pin">Use PIN</string>
+    <string name="lock_use_fingerprint">Unlock with fingerprint</string>
+    <string name="settings_biometric_toggle">Unlock with fingerprint</string>
+    <string name="settings_biometric_hint">Use your fingerprint instead of the PIN; the PIN always works too</string>
     <string name="lock_backspace">Backspace</string>
 
     <string name="settings_backup_section">Backup</string>
@@ -186,4 +218,9 @@
     <string name="backup_import_success">Entries restored</string>
     <string name="backup_wrong_passphrase">Wrong password</string>
     <string name="backup_bad_file">This isn\'t a valid backup file</string>
+    <string name="recovery_title">Your ledger can\'t be opened on this phone</string>
+    <string name="recovery_body">The phone removed the security key that locks your ledger. This can happen on some phones after changing the screen lock or a system update. Start over, then restore your latest backup from Settings → Backup.</string>
+    <string name="recovery_start_over">Start over</string>
+    <string name="recovery_retry">Try again</string>
+    <string name="recovery_confirm">An empty ledger will open. The old file is not deleted; it stays on the phone. Then restore your backup from Settings → Backup.</string>
 </resources>

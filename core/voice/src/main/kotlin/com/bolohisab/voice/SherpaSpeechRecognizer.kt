@@ -16,7 +16,10 @@ import com.k2fsa.sherpa.onnx.OnlineRecognizer
 import com.k2fsa.sherpa.onnx.OnlineRecognizerConfig
 import com.k2fsa.sherpa.onnx.OnlineStream
 import com.k2fsa.sherpa.onnx.OnlineTransducerModelConfig
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,6 +28,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.withContext
 import java.util.concurrent.atomic.AtomicBoolean
@@ -39,8 +43,11 @@ import kotlin.math.sqrt
 @OptIn(ExperimentalCoroutinesApi::class, kotlinx.coroutines.DelicateCoroutinesApi::class)
 class SherpaSpeechRecognizer(
     private val context: Context,
-    private val locator: AsrModelLocator = AsrModelLocator(context),
+    private val pack: AsrModelPack = AsrModelPack(context),
+    private val locator: AsrModelLocator = AsrModelLocator(context, pack),
 ) : SpeechRecognizer {
+
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     private val asrThread = newSingleThreadContext("bolohisab-asr")
     private val _state = MutableStateFlow<ModelState>(ModelState.NotLoaded)
@@ -50,15 +57,23 @@ class SherpaSpeechRecognizer(
     private var hotwordsSupported = false
     private val stopRequested = AtomicBoolean(false)
 
-    override suspend fun warmUp() = withContext(asrThread) { ensureLoaded(); Unit }
+    override suspend fun warmUp() = withContext(asrThread) {
+        // No model yet on a Play install: the fast-follow pack may still be downloading (or was
+        // cleared). Ask for it and load it the moment it lands; typing works meanwhile.
+        if (ensureLoaded() == null && _state.value is ModelState.Missing) {
+            pack.requestIfMissing { scope.launch { reload() } }
+        }
+        Unit
+    }
 
     private fun ensureLoaded(): OnlineRecognizer? {
         recognizer?.let { return it }
         val files = locator.locate() ?: run { _state.value = ModelState.Missing; return null }
         _state.value = ModelState.Loading
         return try {
-            // Hotwords need the BPE vocab read from a real file path, so only for models on disk.
-            hotwordsSupported = !files.fromAssets && files.bpeVocab != null
+            // Hotwords need the BPE vocab read from a real file path, so only for models on disk —
+            // and only when this model really is a BPE model and hotword loading has never died.
+            hotwordsSupported = !files.fromAssets && HotwordGuard.canTry(context, files)
             val config = OnlineRecognizerConfig(
                 featConfig = FeatureConfig(sampleRate = SAMPLE_RATE, featureDim = 80),
                 modelConfig = OnlineModelConfig(
@@ -85,7 +100,11 @@ class SherpaSpeechRecognizer(
                 hotwordsScore = 2.0f,
             )
             val assets = if (files.fromAssets) context.assets else null
+            // A bad native config aborts the whole process (no exception to catch), so the attempt
+            // is marked first: if it never returns, the next launch loads without hotwords.
+            if (hotwordsSupported) HotwordGuard.beginAttempt(context)
             OnlineRecognizer(assetManager = assets, config = config).also {
+                if (hotwordsSupported) HotwordGuard.attemptSucceeded(context)
                 recognizer = it
                 _state.value = ModelState.Ready(hotwordsSupported)
             }
@@ -97,6 +116,14 @@ class SherpaSpeechRecognizer(
     }
 
     override fun stop() = stopRequested.set(true)
+
+    override suspend fun reload() = withContext(asrThread) {
+        recognizer?.release()
+        recognizer = null
+        _state.value = ModelState.NotLoaded
+        ensureLoaded()
+        Unit
+    }
 
     @SuppressLint("MissingPermission") // Checked below; the UI requests it before calling listen().
     override fun listen(hotwords: List<String>): Flow<SpeechEvent> = flow {
@@ -114,6 +141,10 @@ class SherpaSpeechRecognizer(
             AudioFormat.ENCODING_PCM_16BIT,
             maxOf(minBuffer, CHUNK * 4),
         )
+        if (audio.state != AudioRecord.STATE_INITIALIZED) {
+            audio.release()
+            throw MicUnavailableException()
+        }
         val stream: OnlineStream = rec.createStream(
             if (hotwordsSupported) hotwords.filter { it.isNotBlank() }.joinToString("\n") else "",
         )
@@ -122,9 +153,18 @@ class SherpaSpeechRecognizer(
         var lastPartial = ""
         try {
             audio.startRecording()
+            if (audio.recordingState != AudioRecord.RECORDSTATE_RECORDING) throw MicUnavailableException()
+            var emptyReads = 0
             while (currentCoroutineContext().isActive && !stopRequested.get()) {
                 val n = audio.read(pcm, 0, CHUNK)
-                if (n <= 0) continue
+                // A negative count is an error (device lost, mic taken by a call) and will not recover;
+                // a run of empty reads means the same. Either way fail instead of spinning the CPU.
+                if (n < 0) throw MicUnavailableException()
+                if (n == 0) {
+                    if (++emptyReads > MAX_EMPTY_READS) throw MicUnavailableException()
+                    continue
+                }
+                emptyReads = 0
                 var sumSquares = 0.0
                 for (i in 0 until n) {
                     val s = pcm[i] / 32768f
@@ -156,5 +196,6 @@ class SherpaSpeechRecognizer(
         const val SAMPLE_RATE = 16_000
         const val CHUNK = 1_600 // 100 ms
         const val THREADS = 2
+        const val MAX_EMPTY_READS = 20
     }
 }

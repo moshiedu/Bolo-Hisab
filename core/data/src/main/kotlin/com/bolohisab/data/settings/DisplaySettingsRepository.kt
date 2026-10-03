@@ -2,6 +2,7 @@ package com.bolohisab.data.settings
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.Flow
@@ -34,7 +35,23 @@ class DisplaySettingsRepository @Inject constructor(private val dataStore: DataS
         dataStore.edit { prefs -> prefs[KEY_APP_LANGUAGE] = if (language == AppLanguage.ENGLISH) ENGLISH_VALUE else BANGLA_VALUE }
     }
 
+    /** Avro-style Banglish → Bangla suggestions while typing. On by default. */
+    val banglishTyping: Flow<Boolean> = dataStore.data.map { prefs -> prefs[KEY_BANGLISH_TYPING] != false }
+
+    suspend fun setBanglishTyping(enabled: Boolean) {
+        dataStore.edit { prefs -> prefs[KEY_BANGLISH_TYPING] = enabled }
+    }
+
+    /** Read answers to voice questions aloud. On by default. */
+    val speakAnswers: Flow<Boolean> = dataStore.data.map { prefs -> prefs[KEY_SPEAK_ANSWERS] != false }
+
+    suspend fun setSpeakAnswers(enabled: Boolean) {
+        dataStore.edit { prefs -> prefs[KEY_SPEAK_ANSWERS] = enabled }
+    }
+
     private companion object {
+        val KEY_SPEAK_ANSWERS = booleanPreferencesKey("speak_answers")
+        val KEY_BANGLISH_TYPING = booleanPreferencesKey("banglish_typing")
         val KEY_DIGIT_STYLE = stringPreferencesKey("digit_style")
         const val LATIN_VALUE = "latin"
         const val BENGALI_VALUE = "bengali"

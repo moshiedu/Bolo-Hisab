@@ -49,6 +49,10 @@ fun PinKeypadScreen(
     onErrorShown: () -> Unit,
     modifier: Modifier = Modifier,
     pinLength: Int = 4,
+    /** False while the lock screen is in a wrong-PIN lockout or still checking a PIN. */
+    enabled: Boolean = true,
+    /** Shown in the keypad's empty bottom-left cell, e.g. the fingerprint button. */
+    extraKey: (@Composable () -> Unit)? = null,
 ) {
     var pin by remember { mutableStateOf("") }
     val shake = remember { Animatable(0f) }
@@ -66,6 +70,7 @@ fun PinKeypadScreen(
     }
 
     fun press(digit: Char) {
+        if (!enabled) return
         if (error) onErrorShown()
         if (pin.length < pinLength) {
             pin += digit
@@ -97,15 +102,15 @@ fun PinKeypadScreen(
             val rows = listOf("123", "456", "789")
             rows.forEach { row ->
                 Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-                    row.forEach { digit -> DigitKey(digit.toString()) { press(digit) } }
+                    row.forEach { digit -> DigitKey(digit.toString(), enabled) { press(digit) } }
                 }
                 Spacer(Modifier.height(12.dp))
             }
             Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-                Box(Modifier.size(64.dp))
-                DigitKey("0") { press('0') }
+                Box(Modifier.size(64.dp), contentAlignment = Alignment.Center) { extraKey?.invoke() }
+                DigitKey("0", enabled) { press('0') }
                 Box(
-                    Modifier.size(64.dp).clip(CircleShape).clickable(enabled = pin.isNotEmpty()) { pin = pin.dropLast(1) },
+                    Modifier.size(64.dp).clip(CircleShape).clickable(enabled = enabled && pin.isNotEmpty()) { pin = pin.dropLast(1) },
                     contentAlignment = Alignment.Center,
                 ) {
                     if (pin.isNotEmpty()) {
@@ -136,8 +141,8 @@ private fun PinDot(filled: Boolean) {
 }
 
 @Composable
-private fun DigitKey(digit: String, onClick: () -> Unit) {
-    TextButton(onClick = onClick, modifier = Modifier.size(64.dp)) {
+private fun DigitKey(digit: String, enabled: Boolean, onClick: () -> Unit) {
+    TextButton(onClick = onClick, enabled = enabled, modifier = Modifier.size(64.dp)) {
         Text(Bn.digits(digit), style = MaterialTheme.typography.headlineSmall)
     }
 }

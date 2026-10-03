@@ -77,5 +77,13 @@ class CustomerMatcher(customers: List<KnownCustomer>) {
         }
 
         fun hasCaseEnding(word: String): Boolean = endingOf(BanglaText.normalize(word).trim()) != null
+
+        private val whitespace = Regex("\\s+")
+
+        /**
+         * Identity key for a customer name: NFC, lower-case Latin, single spaces. Two names with the
+         * same key are the same text typed differently ("রহিম " vs "রহিম", "Rahim" vs "rahim").
+         */
+        fun nameKey(name: String): String = BanglaText.normalize(name).trim().split(whitespace).joinToString(" ")
     }
 }
