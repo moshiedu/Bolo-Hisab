@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.VolumeUp
 import androidx.compose.material.icons.rounded.CloudDownload
 import androidx.compose.material.icons.rounded.CloudUpload
 import androidx.compose.material.icons.rounded.Fingerprint
@@ -69,6 +70,7 @@ fun SettingsScreen(
     val language by displayViewModel.language.collectAsStateWithLifecycle()
     val banglishTyping by displayViewModel.banglishTyping.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val speakAnswers by displayViewModel.speakAnswers.collectAsStateWithLifecycle()
 
     if (state.pinSetup != PinSetupStep.Hidden) {
         PinSetupOverlay(state, viewModel)
@@ -134,6 +136,12 @@ fun SettingsScreen(
                         Switch(checked = banglishTyping, onCheckedChange = displayViewModel::setBanglishTyping)
                     },
                     modifier = Modifier.padding(top = 8.dp),
+                )
+                ListItem(
+                    leadingContent = { Icon(Icons.AutoMirrored.Rounded.VolumeUp, contentDescription = null) },
+                    headlineContent = { Text(stringResource(R.string.settings_speak_answers)) },
+                    supportingContent = { Text(stringResource(R.string.settings_speak_answers_hint)) },
+                    trailingContent = { Switch(checked = speakAnswers, onCheckedChange = displayViewModel::setSpeakAnswers) },
                 )
                 LearnedWordsItem()
                 VoiceModelSetting()

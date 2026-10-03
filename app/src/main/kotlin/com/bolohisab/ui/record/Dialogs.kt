@@ -4,10 +4,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.Chat
+import androidx.compose.material.icons.automirrored.rounded.VolumeUp
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -31,6 +33,7 @@ import com.bolohisab.R
 import com.bolohisab.nlu.Period
 import com.bolohisab.nlu.typing.TypingContext
 import com.bolohisab.ui.components.VoiceOutlinedTextField
+import com.bolohisab.ui.components.rememberSpeaker
 import com.bolohisab.ui.format.Bn
 import com.bolohisab.ui.theme.LedgerTheme
 import com.bolohisab.ui.theme.MoneyStyle
@@ -77,9 +80,29 @@ private fun Period.label(): String = stringResource(
     },
 )
 
-/** Answer to a spoken question such as "রহিমের কত বাকি?". */
+/** Answer to a spoken question such as "রহিমের কত বাকি?", shown and, when [speak] is on, read aloud. */
 @Composable
-fun AnswerDialog(answer: Answer, onDismiss: () -> Unit) {
+fun AnswerDialog(answer: Answer, onDismiss: () -> Unit, speak: Boolean = false) {
+    val spoken = when (answer) {
+        is Answer.Due ->
+            if (answer.due.value > 0) stringResource(R.string.answer_due, answer.name, Bn.taka(answer.due))
+            else stringResource(R.string.answer_no_due, answer.name)
+        Answer.UnknownCustomer -> stringResource(R.string.answer_unknown_customer)
+        is Answer.Sales -> stringResource(
+            R.string.answer_sales,
+            answer.period.label(),
+            Bn.taka(answer.sales),
+            Bn.taka(answer.credit),
+            Bn.taka(answer.collected),
+        )
+        is Answer.TopDebtors ->
+            if (answer.rows.isEmpty()) stringResource(R.string.answer_no_debtors)
+            else stringResource(R.string.answer_top_debtors) + " " +
+                answer.rows.joinToString(", ") { (name, due) -> name + " " + Bn.taka(due) }
+    }
+    val speaker = if (speak) rememberSpeaker(Bn.language) else null
+    LaunchedEffect(answer, speaker) { speaker?.speak(spoken) }
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.answer_title)) },
@@ -121,6 +144,14 @@ fun AnswerDialog(answer: Answer, onDismiss: () -> Unit) {
             }
         },
         confirmButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_ok)) } },
+        dismissButton = speaker?.let { s ->
+            {
+                TextButton(onClick = { s.speak(spoken) }) {
+                    Icon(Icons.AutoMirrored.Rounded.VolumeUp, contentDescription = null, modifier = Modifier.padding(end = 6.dp))
+                    Text(stringResource(R.string.answer_listen))
+                }
+            }
+        },
     )
 }
 

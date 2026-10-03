@@ -157,6 +157,9 @@
     <string name="settings_language_english">English</string>
     <string name="settings_banglish_toggle">Banglish to Bangla suggestions</string>
     <string name="settings_banglish_hint">Type in English letters (chal, taka, rahim) to get Bangla words and sentences; space accepts the first</string>
+    <string name="answer_listen">Listen</string>
+    <string name="settings_speak_answers">Read answers aloud</string>
+    <string name="settings_speak_answers_hint">Speaks the answer to questions like \"How much does Rahim owe?\" (needs a Bangla voice on the phone)</string>
     <string name="learned_title">Learned words and fixes</string>
     <string name="learned_summary">%1$s fixes · %2$s typing picks</string>
     <string name="learned_hint">The app learns from your corrections and typing. It all stays on this phone. Remove anything it got wrong.</string>

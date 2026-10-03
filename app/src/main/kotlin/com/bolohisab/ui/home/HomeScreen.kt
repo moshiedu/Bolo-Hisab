@@ -68,6 +68,7 @@ import com.bolohisab.ui.record.RecordEvent
 import com.bolohisab.ui.record.RecordViewModel
 import com.bolohisab.ui.record.ReviewSheet
 import com.bolohisab.ui.record.TypeEntryDialog
+import com.bolohisab.ui.settings.DisplaySettingsViewModel
 import com.bolohisab.ui.theme.LedgerTheme
 import com.bolohisab.voice.ModelState
 import java.time.LocalDate
@@ -77,6 +78,7 @@ import java.time.LocalDate
 fun HomeScreen(
     homeViewModel: HomeViewModel = hiltViewModel(),
     recordViewModel: RecordViewModel = hiltViewModel(),
+    displayViewModel: DisplaySettingsViewModel = hiltViewModel(),
 ) {
     val home by homeViewModel.state.collectAsStateWithLifecycle()
     val record by recordViewModel.state.collectAsStateWithLifecycle()
@@ -218,7 +220,8 @@ fun HomeScreen(
             onDelete = recordViewModel::onDeleteEditingEntry,
         )
     }
-    record.answer?.let { AnswerDialog(it, recordViewModel::onAnswerDismiss) }
+    val speakAnswers by displayViewModel.speakAnswers.collectAsStateWithLifecycle()
+    record.answer?.let { AnswerDialog(it, recordViewModel::onAnswerDismiss, speak = speakAnswers) }
     if (typing) {
         TypeEntryDialog(
             onSubmit = { typing = false; recordViewModel.onTyped(it) },

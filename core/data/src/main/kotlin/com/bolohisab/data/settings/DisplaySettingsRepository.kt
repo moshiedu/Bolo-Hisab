@@ -42,7 +42,15 @@ class DisplaySettingsRepository @Inject constructor(private val dataStore: DataS
         dataStore.edit { prefs -> prefs[KEY_BANGLISH_TYPING] = enabled }
     }
 
+    /** Read answers to voice questions aloud. On by default. */
+    val speakAnswers: Flow<Boolean> = dataStore.data.map { prefs -> prefs[KEY_SPEAK_ANSWERS] != false }
+
+    suspend fun setSpeakAnswers(enabled: Boolean) {
+        dataStore.edit { prefs -> prefs[KEY_SPEAK_ANSWERS] = enabled }
+    }
+
     private companion object {
+        val KEY_SPEAK_ANSWERS = booleanPreferencesKey("speak_answers")
         val KEY_BANGLISH_TYPING = booleanPreferencesKey("banglish_typing")
         val KEY_DIGIT_STYLE = stringPreferencesKey("digit_style")
         const val LATIN_VALUE = "latin"

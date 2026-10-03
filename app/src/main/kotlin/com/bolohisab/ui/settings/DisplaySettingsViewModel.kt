@@ -46,6 +46,13 @@ class DisplaySettingsViewModel @Inject constructor(
     fun setBanglishTyping(enabled: Boolean) {
         viewModelScope.launch { repository.setBanglishTyping(enabled) }
     }
+
+    val speakAnswers: StateFlow<Boolean> =
+        repository.speakAnswers.stateIn(viewModelScope, SharingStarted.Eagerly, true)
+
+    fun setSpeakAnswers(enabled: Boolean) {
+        viewModelScope.launch { repository.setSpeakAnswers(enabled) }
+    }
 }
 
 /** Keeps [Bn.digitStyle]/[Bn.language] and the app's forced display locale in sync with the persisted choices. */

@@ -157,6 +157,9 @@
     <string name="settings_language_english">English</string>
     <string name="settings_banglish_toggle">বাংলিশ থেকে বাংলা সাজেশন</string>
     <string name="settings_banglish_hint">ইংরেজি অক্ষরে লিখলে (chal, taka, rahim) বাংলা শব্দ ও বাক্য দেখাবে, স্পেস দিলে বসে যাবে</string>
+    <string name="answer_listen">শুনুন</string>
+    <string name="settings_speak_answers">উত্তর শুনিয়ে দিন</string>
+    <string name="settings_speak_answers_hint">\"রহিমের কত বাকি?\" জাতীয় প্রশ্নের উত্তর মুখে বলবে (ফোনে বাংলা ভয়েস থাকলে)</string>
     <string name="learned_title">শেখা শব্দ ও সংশোধন</string>
     <string name="learned_summary">%1$sটি সংশোধন · %2$sটি টাইপিং পছন্দ</string>
     <string name="learned_hint">আপনার সংশোধন আর টাইপ থেকে অ্যাপ শেখে, সব তথ্য শুধু এই ফোনে থাকে। ভুল কিছু শিখলে মুছে দিন।</string>
