@@ -3,6 +3,8 @@
 Offline Bangla voice ledger for Bangladeshi shopkeepers. **Talk-first khata is the key selling point**:
 one spoken sentence → many items → confirm card → saved. Nothing is saved without the confirm card.
 
+Open issues and to-dos live in `TODO.md`; keep it current when fixing or finding issues.
+
 ## Product scope (current, ahead of the plan doc)
 `Bangla Voice Ledger — Validation & Product Plan.md` is out of date. After comparing with TallyKhata
 before v1, scope was widened: stock/inventory, customer profiles (address, photo) and the rest of
