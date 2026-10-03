@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.net.Uri
 import androidx.exifinterface.media.ExifInterface
+import com.bolohisab.data.backup.BackupPhotos
 import java.io.File
 import java.util.UUID
 
@@ -18,7 +19,7 @@ import java.util.UUID
 object CustomerPhotoStore {
     private const val MAX_DIMENSION = 512
     private const val JPEG_QUALITY = 85
-    private const val DIR = "customer_photos"
+    private const val DIR = BackupPhotos.DIR
 
     fun save(context: Context, sourceUri: Uri): String {
         val dir = File(context.filesDir, DIR).apply { mkdirs() }

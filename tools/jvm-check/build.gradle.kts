@@ -18,6 +18,7 @@ sourceSets {
                 "com/bolohisab/data/security/PinLockout.kt",
                 "com/bolohisab/data/backup/BackupCrypto.kt",
                 "com/bolohisab/data/backup/BackupModels.kt",
+                "com/bolohisab/data/backup/BackupPhotos.kt",
             )
         }
         resources { srcDir(repo.resolve("core/nlu/src/main/resources")) }

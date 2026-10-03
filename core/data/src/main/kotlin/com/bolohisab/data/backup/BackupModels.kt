@@ -26,8 +26,11 @@ data class BackupCustomer(
     val name: String,
     val phone: String?,
     val address: String? = null,
+    /** Where the photo lived on the old phone; informational only, never used as a path on restore. */
     val photoPath: String? = null,
     val createdAt: Long,
+    /** The photo itself (Base64 JPEG, see [BackupPhotos]); absent before version 4. */
+    val photo: String? = null,
 )
 
 @Serializable
@@ -95,5 +98,5 @@ data class BackupWordPair(val prev: String, val next: String, val count: Int, va
 @Serializable
 data class BackupCorrection(val heard: String, val fixed: String, val count: Int, val lastUsed: Long)
 
-/** 2 adds products and entry edit history; 3 adds what the typing help learned. */
-const val BACKUP_FORMAT_VERSION = 3
+/** 2 adds products and entry edit history; 3 adds what the typing help learned; 4 adds customer photos. */
+const val BACKUP_FORMAT_VERSION = 4

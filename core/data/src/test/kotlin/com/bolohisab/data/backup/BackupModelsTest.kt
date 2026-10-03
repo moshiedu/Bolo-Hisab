@@ -57,4 +57,24 @@ class BackupModelsTest {
         val v2 = """{"version":2,"exportedAt":1,"customers":[],"entries":[],"products":[],"history":[]}"""
         assertEquals(null, json.decodeFromString(BackupPayload.serializer(), v2).learning)
     }
+
+    @Test
+    fun `a customer photo travels in the backup and older files have none`() {
+        val jpeg = byteArrayOf(0xFF.toByte(), 0xD8.toByte(), 0xFF.toByte(), 0xE0.toByte(), 1, 2, 3)
+        val customer = BackupCustomer(1, "রহিম", null, createdAt = 1, photo = BackupPhotos.encode(jpeg))
+        val payload = BackupPayload(BACKUP_FORMAT_VERSION, 1, listOf(customer), emptyList())
+        val decoded = json.decodeFromString(BackupPayload.serializer(), json.encodeToString(BackupPayload.serializer(), payload))
+        org.junit.Assert.assertArrayEquals(jpeg, BackupPhotos.decode(decoded.customers.single().photo))
+
+        val v3 = """{"version":3,"exportedAt":1,"customers":[{"id":1,"name":"রহিম","phone":null,"photoPath":"/old/x.jpg","createdAt":1}],"entries":[]}"""
+        assertEquals(null, json.decodeFromString(BackupPayload.serializer(), v3).customers.single().photo)
+    }
+
+    @Test
+    fun `only real jpeg photos are accepted from a backup`() {
+        assertEquals(null, BackupPhotos.decode(BackupPhotos.encode("not an image".toByteArray())))
+        assertEquals(null, BackupPhotos.decode("%%% not base64 %%%"))
+        assertEquals(null, BackupPhotos.decode(null))
+        assertEquals(null, BackupPhotos.decode(BackupPhotos.encode(ByteArray(BackupPhotos.MAX_BYTES + 10) { 0xFF.toByte() })))
+    }
 }

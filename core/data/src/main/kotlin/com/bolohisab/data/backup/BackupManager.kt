@@ -1,5 +1,6 @@
 package com.bolohisab.data.backup
 
+import android.content.Context
 import androidx.room.withTransaction
 import com.bolohisab.data.db.CorrectionEntity
 import com.bolohisab.data.db.CustomerEntity
@@ -13,14 +14,20 @@ import com.bolohisab.data.db.ProductEntity
 import com.bolohisab.data.db.TypingChoiceEntity
 import com.bolohisab.data.db.WordPairEntity
 import com.bolohisab.data.db.WordUsageEntity
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
+import java.io.File
 import java.time.Clock
+import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 
 /** Turns the whole ledger into an encrypted, portable snapshot, and back. */
 @Singleton
 class BackupManager @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val db: LedgerDatabase,
     private val dao: LedgerDao,
     private val learningDao: LearningDao,
@@ -30,7 +37,10 @@ class BackupManager @Inject constructor(
 
     suspend fun export(passphrase: String): ByteArray {
         val customers = dao.allCustomersOnce().map {
-            BackupCustomer(it.id, it.name, it.phone, it.address, it.photoPath, it.createdAt)
+            val photo = withContext(Dispatchers.IO) {
+                it.photoPath?.let { p -> runCatching { File(p).readBytes() }.getOrNull() }?.let(BackupPhotos::encode)
+            }
+            BackupCustomer(it.id, it.name, it.phone, it.address, it.photoPath, it.createdAt, photo)
         }
         val entries = dao.allEntriesWithItemsOnce().map { d ->
             BackupEntry(
@@ -69,8 +79,12 @@ class BackupManager @Inject constructor(
         val plain = BackupCrypto.decrypt(blob, passphrase)
         val payload = json.decodeFromString(BackupPayload.serializer(), plain.toString(Charsets.UTF_8))
 
-        val customers = payload.customers.map {
-            CustomerEntity(it.id, it.name, it.phone, it.address, it.photoPath, it.createdAt)
+        val photoDir = File(context.filesDir, BackupPhotos.DIR)
+        val written = mutableListOf<File>()
+        val customers = withContext(Dispatchers.IO) {
+            payload.customers.map {
+                CustomerEntity(it.id, it.name, it.phone, it.address, restorePhoto(it, photoDir, written), it.createdAt)
+            }
         }
         val entries = payload.entries.map {
             EntryEntity(
@@ -108,16 +122,45 @@ class BackupManager @Inject constructor(
             null
         }
         val learning = payload.learning
-        db.withTransaction {
-            dao.replaceAll(customers, entries, items, history, products)
-            if (learning != null) {
-                learningDao.replaceAll(
-                    choices = learning.choices.map { TypingChoiceEntity(it.typed, it.text, it.count, it.lastUsed) },
-                    words = learning.words.map { WordUsageEntity(it.word, it.count, it.lastUsed) },
-                    pairs = learning.pairs.map { WordPairEntity(it.prev, it.next, it.count, it.lastUsed) },
-                    corrections = learning.corrections.map { CorrectionEntity(it.heard, it.fixed, it.count, it.lastUsed) },
-                )
+        try {
+            db.withTransaction {
+                dao.replaceAll(customers, entries, items, history, products)
+                if (learning != null) {
+                    learningDao.replaceAll(
+                        choices = learning.choices.map { TypingChoiceEntity(it.typed, it.text, it.count, it.lastUsed) },
+                        words = learning.words.map { WordUsageEntity(it.word, it.count, it.lastUsed) },
+                        pairs = learning.pairs.map { WordPairEntity(it.prev, it.next, it.count, it.lastUsed) },
+                        corrections = learning.corrections.map { CorrectionEntity(it.heard, it.fixed, it.count, it.lastUsed) },
+                    )
+                }
             }
+        } catch (e: Throwable) {
+            written.forEach { it.delete() }
+            throw e
         }
+        // Photos of customers the restore replaced are no longer referenced by anyone.
+        val kept = customers.mapNotNull { it.photoPath }.toSet()
+        withContext(Dispatchers.IO) {
+            photoDir.listFiles()?.filter { it.absolutePath !in kept }?.forEach { it.delete() }
+        }
+    }
+
+    /**
+     * Where a restored customer's photo lives on this phone. A photo carried in the backup is
+     * written under a fresh name (the file name in the backup is never used as a path). Older
+     * backups only have the old phone's path, kept when it is a photo already in this app's
+     * photo folder, i.e. a restore on the same phone.
+     */
+    private fun restorePhoto(customer: BackupCustomer, dir: File, written: MutableList<File>): String? {
+        BackupPhotos.decode(customer.photo)?.let { bytes ->
+            dir.mkdirs()
+            val file = File(dir, "${UUID.randomUUID()}.jpg")
+            file.writeBytes(bytes)
+            written += file
+            return file.absolutePath
+        }
+        val old = customer.photoPath?.let(::File) ?: return null
+        val inPhotoDir = old.exists() && old.canonicalFile.parentFile == dir.canonicalFile
+        return if (inPhotoDir) old.absolutePath else null
     }
 }
