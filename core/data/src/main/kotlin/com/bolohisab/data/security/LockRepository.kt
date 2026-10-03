@@ -9,6 +9,7 @@ import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
@@ -37,10 +38,15 @@ class LockRepository @Inject constructor(
     private val clock: Clock,
 ) {
 
-    val enabled: Flow<Boolean> = dataStore.data.map { it[KEY_ENABLED] == true }
+    /**
+     * Distinct, because the settings store emits on every write (wrong-PIN counter, display
+     * settings): without it, the lock gate re-locked the app right after a correct PIN that
+     * followed a wrong one, or whenever another setting was changed.
+     */
+    val enabled: Flow<Boolean> = dataStore.data.map { it[KEY_ENABLED] == true }.distinctUntilChanged()
 
     /** End of the current lockout in epoch millis, or null when PINs are accepted. */
-    val lockedUntil: Flow<Long?> = dataStore.data.map { activeLockout(it) }
+    val lockedUntil: Flow<Long?> = dataStore.data.map { activeLockout(it) }.distinctUntilChanged()
 
     suspend fun setPin(pin: String) {
         val salted = withContext(Dispatchers.Default) { PinHasher.hash(pin) }
