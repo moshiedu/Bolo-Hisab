@@ -55,8 +55,8 @@ Without the Android SDK, the pure-Kotlin parts (parser, typing help, lexicon fil
 
 ## Next milestones
 
-- Record 300 real sentences from 10 shops and measure the unedited-save rate (target 9 in 10).
-- Reports and PDF export; encrypted backup file; app lock.
-- Ship the model as a Play Asset Delivery pack, and enable customer-name hotwords (they need the model on disk).
+- Record 300 real sentences from 10 shops into `test_sentences.csv` and measure the unedited-save rate (target 9 in 10).
+- Ship the model as a Play Asset Delivery pack, so hotwords work for everyone without the 90 MB copy behind the Settings toggle.
+- Fine-tune the speech model on regional recordings (dialect support on the voice side).
 - Optional FunctionGemma fallback for sentences the rules miss.
 - AdMob and Play Billing (Remove Ads / Pro).
