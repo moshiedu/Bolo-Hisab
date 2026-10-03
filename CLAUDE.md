@@ -15,15 +15,17 @@ the khata basics ship in v1, with voice-first entry as the differentiator.
   plus the shop's customers/products/past items; `PhoneticSuggester` ranks them. Space/comma commits
   the highlighted whole-word match, never a completion. UI: the strip inside `VoiceOutlinedTextField`
   (`typing = TypingContext.*` per field), toggle in Settings.
-- **Built-in phrasebook**: `core/nlu/src/main/resources/com/bolohisab/nlu/typing/vocabulary.txt` —
-  words + English aliases, full sentences, and next-word hints (`<number>`, `<customer>` slots). Grow
-  the vocabulary there, not in code.
+- **Lexicon CSVs** (team-edited in spreadsheets; guide: `docs/lexicon.md`):
+  `core/nlu/src/main/resources/com/bolohisab/nlu/lexicon/` `words.csv`, `phrases.csv`,
+  `next_words.csv` (`<number>`, `<customer>` slots, row order = rank), `dialect.csv`; parser corpus
+  `core/nlu/src/test/resources/com/bolohisab/nlu/test_sentences.csv` runs as `SentenceCorpusTest`.
+  `LexiconFilesTest` validates every file. Grow vocabulary and dialects there, not in code.
 - **Learning** (on device, encrypted DB tables `typing_choices`, `word_usage`, `word_pairs`,
   `corrections`; `LearningRepository`): whole-word picks per Banglish spelling, word/pair usage from
   confirmed entries, and voice fixes learned from confirm-card edits (`Corrections.learn`). Corrections
   are guarded: heard word only, sound-alike only, never grammar/unit/number words or an existing
   customer's name. Everything is reviewable/deletable in Settings and included in backup (v3).
-- **Dialects** (`Dialect.kt`): region-tagged variant → standard word map run before parsing. Only add
+- **Dialects** (`Dialect.kt`, data in `dialect.csv`): variant → standard word map run before parsing. Only add
   words with a single unambiguous ledger meaning, from field data. Voice-side dialect support needs
   ASR fine-tuning on regional recordings; this map covers the text side.
 

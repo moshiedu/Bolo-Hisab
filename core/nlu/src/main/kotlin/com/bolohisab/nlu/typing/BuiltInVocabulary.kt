@@ -1,8 +1,11 @@
 package com.bolohisab.nlu.typing
 
+import com.bolohisab.nlu.LexiconCsv
+
 /**
- * Reads the bundled `vocabulary.txt` (words with English aliases, sentences, next-word hints).
- * Kept as a data file so the vocabulary can grow without code changes; see its header for format.
+ * The bundled typing vocabulary, read from the lexicon CSVs the team edits in a spreadsheet
+ * (see docs/lexicon.md): `words.csv` (words and the English/Banglish spellings typed for them),
+ * `phrases.csv` (whole sentences) and `next_words.csv` (what usually follows a word).
  */
 internal object BuiltInVocabulary {
 
@@ -14,28 +17,15 @@ internal object BuiltInVocabulary {
     )
 
     val data: Data by lazy {
-        val text = BuiltInVocabulary::class.java.getResourceAsStream("vocabulary.txt")
-            ?.bufferedReader(Charsets.UTF_8)?.use { it.readText() }
-            .orEmpty()
-        parse(text)
-    }
-
-    fun parse(text: String): Data {
-        val words = mutableListOf<Pair<String, List<String>>>()
-        val phrases = mutableListOf<String>()
-        val next = mutableListOf<Pair<String, List<String>>>()
-        var section = ""
-        for (raw in text.lineSequence()) {
-            val line = raw.trim()
-            if (line.isEmpty() || line.startsWith("#")) continue
-            if (line.startsWith("[") && line.endsWith("]")) { section = line; continue }
-            val cols = line.split('\t').map(String::trim)
-            when (section) {
-                "[words]" -> words += cols[0] to cols.getOrNull(1).orEmpty().split(' ').filter(String::isNotEmpty).map(String::lowercase)
-                "[phrases]" -> phrases += cols[0]
-                "[next]" -> if (cols.size >= 2) next += cols[0] to cols[1].split('|').map(String::trim).filter(String::isNotEmpty)
-            }
-        }
-        return Data(words, phrases, next)
+        Data(
+            words = LexiconCsv.load("words.csv").map { it["word"] to LexiconCsv.list(it["aliases"]).map(String::lowercase) }
+                .filter { it.first.isNotEmpty() },
+            phrases = LexiconCsv.load("phrases.csv").map { it["phrase"] }.filter(String::isNotEmpty),
+            // Row order is rank order: the first "after" row for a word is its best follower.
+            next = LexiconCsv.load("next_words.csv")
+                .filter { it["after"].isNotEmpty() && it["next"].isNotEmpty() }
+                .groupBy({ it["after"] }, { it["next"] })
+                .toList(),
+        )
     }
 }

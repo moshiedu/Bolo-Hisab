@@ -1,0 +1,18 @@
+sentence,type,customer,total,paid,items,note
+"রহিম ২ কেজি চাল ১২০ টাকা আর ১ লিটার তেল ২০০ টাকা, ১০০ দিয়েছে",credit_sale,রহিম,320,100,2,multi-item with part payment
+করিম ভাই ৫০০ টাকা জমা দিয়েছে,payment,আব্দুল করিম,500,500,0,part of a longer name + honorific
+সাড়ে তিনশো টাকার চিনি বিক্রি,cash_sale,-,350,350,1,number words
+দোকান ভাড়া পাঁচ হাজার টাকা খরচ,expense,-,5000,5000,0,
+মিলির কাছে আড়াইশো টাকা বাকি,credit_sale,মিলি,250,0,0,case ending on the name
+রহিম ৩টা সাবান ১৫০ টাকা নগদ,cash_sale,রহিম,150,150,1,
+জাফর ৩০০ টাকা শোধ করেছে,payment,জাফর,300,300,0,
+সুমন ৩০০ টাকা বাকি,credit_sale,সুমন,300,0,0,new customer
+মিলি আধা কেজি পেঁয়াজ চল্লিশ টাকা আর এক প্যাকেট বিস্কুট বিশ টাকা বাকি নিল,credit_sale,মিলি,60,0,2,
+"রহিমকে পাঁচ কেজি চাল দিলাম, মোট ৩০০ টাকা, দেড়শো দিয়েছে",credit_sale,রহিম,300,150,1,spoken total prices the item
+এক হালি ডিম ৫০ টাকা,cash_sale,-,50,50,1,
+রহিম কে ৫০০ টাকা বাকি দিলাম,credit_sale,রহিম,500,0,0,"কে" as its own word
+রহিম ৫০০ টেঁয়া বাকি,credit_sale,রহিম,500,0,0,dialect: Chattogram taka
+রহিমের কত বাকি?,due_question,রহিম,,,,
+আজ মোট বিক্রি কত,sales_question,,,,,
+সবচেয়ে বেশি বাকি কার,top_debtors,,,,,
+হ্যালো কেমন আছেন,unrecognized,,,,,not a ledger sentence

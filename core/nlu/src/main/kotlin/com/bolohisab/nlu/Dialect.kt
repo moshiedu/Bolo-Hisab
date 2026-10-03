@@ -8,27 +8,23 @@ package com.bolohisab.nlu
  * unambiguous ledger meaning; a word that is also a common name or means something else in
  * standard Bangla stays out (e.g. "টিয়া" is a parrot and a girl's name, not just "taka").
  *
- * Grow it from field data: add a [Variant] per word heard in shops, tagged with its region.
+ * Grow it from field data: add a row to `dialect.csv` per word heard in shops, with its region.
  */
 object Dialect {
 
-    enum class Region { COLLOQUIAL, CHATTOGRAM, SYLHET }
+    /** [region] is free text from the CSV: colloquial, chattogram, sylhet, noakhali, … */
+    data class Variant(val word: String, val standard: String, val region: String)
 
-    data class Variant(val word: String, val standard: String, val region: Region)
+    /** Loaded from `dialect.csv`, edited in a spreadsheet with the rest of the lexicon. */
+    val variants: List<Variant> by lazy {
+        LexiconCsv.load("dialect.csv")
+            .map { Variant(it["word"], it["standard"], it["region"]) }
+            .filter { it.word.isNotEmpty() && it.standard.isNotEmpty() }
+    }
 
-    val variants: List<Variant> = listOf(
-        // Money
-        Variant("ট্যাকা", "টাকা", Region.COLLOQUIAL),
-        Variant("টেকা", "টাকা", Region.COLLOQUIAL),
-        Variant("টেঁয়া", "টাকা", Region.CHATTOGRAM),
-        Variant("টেয়া", "টাকা", Region.CHATTOGRAM),
-        Variant("টেখা", "টাকা", Region.SYLHET),
-        // "How much": "কয় টাকা বাকি?"
-        Variant("কয়", "কত", Region.COLLOQUIAL),
-    )
-
-    private val byWord: Map<String, String> =
+    private val byWord: Map<String, String> by lazy {
         variants.associate { BanglaText.key(it.word) to BanglaText.key(it.standard) }
+    }
 
     /** The standard form of one normalised word, or the word itself. */
     fun standardize(word: String): String = byWord[word] ?: word
