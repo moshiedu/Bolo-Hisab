@@ -18,7 +18,7 @@ Everything runs on the phone: speech recognition, parsing and storage. Nothing i
 
 With no model on the device, the app still works by typing (keyboard icon, top right), and the three example sentences on the empty home screen run through the same parser.
 
-Toolchain: AGP 8.13, Gradle 8.14.3, Kotlin 2.2.20, JDK 17+, compileSdk/targetSdk 36, minSdk 26. Android Studio's AGP Upgrade Assistant can move it to AGP 9 later.
+Toolchain: AGP 8.13, Gradle 8.14.5, Kotlin 2.2.20, compileSdk/targetSdk 36, minSdk 26. The Gradle daemon runs on JetBrains JDK 21 (`gradle/gradle-daemon-jvm.properties`), downloaded automatically on first build; Android Studio needs a Kotlin plugin that supports Kotlin 2.2. Android Studio's AGP Upgrade Assistant can move it to AGP 9 later.
 
 ## Modules
 
@@ -39,14 +39,19 @@ Toolchain: AGP 8.13, Gradle 8.14.3, Kotlin 2.2.20, JDK 17+, compileSdk/targetSdk
 ## Tests
 
 ```
-./gradlew :core:nlu:test :app:testDebugUnitTest
+./gradlew :core:nlu:test :core:data:testDebugUnitTest :app:testDebugUnitTest
 ```
 
-- `BanglaNumbersTest`: digits, compounds, fractions, modifiers, lakh/crore.
-- `LedgerParserTest`: 23 cases built from real shop sentences, from multi-item credit to payments and questions.
-- `ReviewStateTest`: the confirm card's edits, validation and Bengali money formatting.
+Without the Android SDK, the pure-Kotlin parts (parser, typing help, lexicon files, PIN and backup code) run with:
 
-Add every sentence a real shopkeeper says that the parser gets wrong to `LedgerParserTest` before fixing it.
+```
+./gradlew -p tools/jvm-check test
+```
+
+- `LedgerParserTest` and `SentenceCorpusTest`: real shop sentences, the latter read from `test_sentences.csv`.
+- `PhoneticTypingTest`, `LearningTest`: Banglish typing, suggestions, and on-device learning.
+- `LexiconFilesTest`: checks the team-edited lexicon CSVs (see [docs/lexicon.md](docs/lexicon.md)).
+- `BanglaNumbersTest`, `ReviewStateTest`, `PinHasherTest`, `PinLockoutTest`, `BackupCryptoTest`, `BackupModelsTest`.
 
 ## Next milestones
 

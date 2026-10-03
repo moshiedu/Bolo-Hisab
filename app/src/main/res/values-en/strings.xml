@@ -209,4 +209,9 @@
     <string name="backup_import_success">Entries restored</string>
     <string name="backup_wrong_passphrase">Wrong password</string>
     <string name="backup_bad_file">This isn\'t a valid backup file</string>
+    <string name="recovery_title">Your ledger can\'t be opened on this phone</string>
+    <string name="recovery_body">The phone removed the security key that locks your ledger. This can happen on some phones after changing the screen lock or a system update. Start over, then restore your latest backup from Settings → Backup.</string>
+    <string name="recovery_start_over">Start over</string>
+    <string name="recovery_retry">Try again</string>
+    <string name="recovery_confirm">An empty ledger will open. The old file is not deleted; it stays on the phone. Then restore your backup from Settings → Backup.</string>
 </resources>

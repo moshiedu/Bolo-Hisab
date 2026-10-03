@@ -209,4 +209,9 @@
     <string name="backup_import_success">হিসাব ফিরিয়ে আনা হয়েছে</string>
     <string name="backup_wrong_passphrase">ভুল পাসওয়ার্ড</string>
     <string name="backup_bad_file">এটি সঠিক ব্যাকআপ ফাইল নয়</string>
+    <string name="recovery_title">এই ফোনে আপনার হিসাব খোলা যাচ্ছে না</string>
+    <string name="recovery_body">হিসাব যে নিরাপত্তা চাবি দিয়ে তালাবদ্ধ, ফোন সেটি মুছে ফেলেছে। স্ক্রিন লক বদলালে বা সিস্টেম আপডেটের পর কিছু ফোনে এমন হয়। নতুন করে শুরু করে সেটিংস → ব্যাকআপ থেকে আপনার শেষ ব্যাকআপ ফিরিয়ে আনুন।</string>
+    <string name="recovery_start_over">নতুন করে শুরু করুন</string>
+    <string name="recovery_retry">আবার চেষ্টা করুন</string>
+    <string name="recovery_confirm">একটি খালি খাতা খুলবে। পুরনো ফাইলটি মুছবে না, ফোনেই রেখে দেওয়া হবে। এরপর সেটিংস → ব্যাকআপ থেকে ব্যাকআপ ফিরিয়ে আনুন।</string>
 </resources>
