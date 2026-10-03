@@ -26,12 +26,12 @@ After comparing with TallyKhata before the first release, v1 scope was widened: 
 
 | Area | State in the app |
 | --- | --- |
-| Voice entry, confirm card, four entry types, voice questions | Built |
+| Voice entry, confirm card, four entry types, voice questions (answered on screen and aloud) | Built |
 | Customer ledger with address and photo, tagada share | Built |
 | Stock (products, restock, low-stock alerts, automatic stock moves on sales) | Built (was out of scope in the original plan) |
 | Reports with PDF export | Built |
 | Encrypted backup file (ledger, stock, history, learning, photos) | Built; Google Drive backup not yet |
-| App lock | PIN with escalating lockout built; fingerprint not yet |
+| App lock | PIN with escalating lockout and fingerprint unlock built |
 | Banglish (Avro-style) typing with ledger vocabulary, sentences and the shop's own names | Built |
 | On-device learning from typing picks and confirm-card corrections | Built |
 | Dialect words mapped to standard Bangla before parsing | Built (text side); voice-side needs regional recordings |
