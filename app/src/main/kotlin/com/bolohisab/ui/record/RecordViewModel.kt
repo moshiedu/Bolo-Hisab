@@ -2,9 +2,11 @@ package com.bolohisab.ui.record
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.bolohisab.data.LearningRepository
 import com.bolohisab.data.LedgerEntry
 import com.bolohisab.data.LedgerRepository
 import com.bolohisab.nlu.CustomerRef
+import com.bolohisab.nlu.EntryDraft
 import com.bolohisab.nlu.KnownCustomer
 import com.bolohisab.nlu.LedgerParser
 import com.bolohisab.nlu.LedgerQuery
@@ -22,6 +24,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -69,6 +72,7 @@ data class RecordUiState(
 @HiltViewModel
 class RecordViewModel @Inject constructor(
     private val repository: LedgerRepository,
+    private val learning: LearningRepository,
     private val speech: SpeechRecognizer,
 ) : ViewModel() {
 
@@ -80,6 +84,9 @@ class RecordViewModel @Inject constructor(
 
     private val customers = repository.customers.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
     private val itemNames = repository.itemNames.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+    private val productNames = repository.products.map { list -> list.map { it.name } }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+    private val corrections = learning.corrections.stateIn(viewModelScope, SharingStarted.Eagerly, emptyMap())
 
     private var listenJob: Job? = null
     private var pressedAt = 0L
@@ -173,14 +180,27 @@ class RecordViewModel @Inject constructor(
                     _state.update { it.copy(review = null) }
                     events.send(RecordEvent.Updated(editingId))
                 } else {
-                    val saved = repository.save(review.toDraft())
+                    val draft = review.toDraft()
+                    val saved = repository.save(draft)
                     attachPickedPhone(saved.customerId, review.pickedPhone)
                     _state.update { it.copy(review = null) }
                     events.send(RecordEvent.Saved(saved.entryId))
+                    learnFrom(review.parsed, draft)
                 }
             } catch (t: Throwable) {
                 events.send(RecordEvent.Failed(t.message ?: t::class.java.simpleName))
             }
+        }
+    }
+
+    /** Teaches the typing help and the parser from a confirmed entry. Never fails the save. */
+    private suspend fun learnFrom(parsed: EntryDraft?, saved: EntryDraft) {
+        try {
+            learning.learnFromEntry(parsed, saved, customers.value, productNames.value)
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            android.util.Log.w("RecordViewModel", "Learning from a saved entry failed", e)
         }
     }
 
@@ -210,7 +230,7 @@ class RecordViewModel @Inject constructor(
     // ------------------------------------------------------------------ core
 
     private suspend fun handleText(text: String) {
-        val parser = LedgerParser(customers.value, itemNames.value)
+        val parser = LedgerParser(customers.value, itemNames.value, corrections.value)
         when (val result = parser.parse(text)) {
             is ParseResult.Entry -> _state.update { it.copy(review = ReviewState.from(result.draft)) }
             is ParseResult.Query -> _state.update { it.copy(answer = answer(result.query)) }

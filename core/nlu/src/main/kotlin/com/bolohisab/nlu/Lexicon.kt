@@ -73,6 +73,12 @@ internal object Lexicon {
         "উনি", "সে", "তিনি", "উনার", "ওর", "তার",
     )
 
+    /** Every grammar word above, for checks that must never touch them (see [Corrections]). */
+    val allWords: Set<String> by lazy {
+        money + credit + received + cash + sale + expense + expenseTopics + total + conjunctions + honorifics +
+            question + due + today + yesterday + month + week + most + who + genericCustomer + filler
+    }
+
     /** Common Bangladeshi grocery words, so they are never mistaken for customer names. */
     val items = set(
         "চাল", "ডাল", "তেল", "চিনি", "লবণ", "লবন", "আটা", "ময়দা", "সুজি", "ডিম", "দুধ", "সাবান",

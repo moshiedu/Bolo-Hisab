@@ -157,6 +157,17 @@
     <string name="settings_language_english">English</string>
     <string name="settings_banglish_toggle">বাংলিশ থেকে বাংলা সাজেশন</string>
     <string name="settings_banglish_hint">ইংরেজি অক্ষরে লিখলে (chal, taka, rahim) বাংলা শব্দ ও বাক্য দেখাবে, স্পেস দিলে বসে যাবে</string>
+    <string name="learned_title">শেখা শব্দ ও সংশোধন</string>
+    <string name="learned_summary">%1$sটি সংশোধন · %2$sটি টাইপিং পছন্দ</string>
+    <string name="learned_hint">আপনার সংশোধন আর টাইপ থেকে অ্যাপ শেখে, সব তথ্য শুধু এই ফোনে থাকে। ভুল কিছু শিখলে মুছে দিন।</string>
+    <string name="learned_corrections">ভয়েসের সংশোধন</string>
+    <string name="learned_corrections_empty">এখনো কোনো সংশোধন শেখেনি। নিশ্চিত করার কার্ডে ভুল নাম বা পণ্য ঠিক করলে এখানে আসবে।</string>
+    <string name="learned_choices">টাইপিং পছন্দ</string>
+    <string name="learned_choices_empty">ইংরেজি অক্ষরে লিখে সাজেশন বেছে নিলে এখানে আসবে।</string>
+    <string name="learned_times">%1$s বার</string>
+    <string name="learned_forget">মুছুন</string>
+    <string name="learned_clear_all">সব মুছুন</string>
+    <string name="learned_clear_confirm">অ্যাপ যা শিখেছে সব মুছে যাবে। আপনার হিসাব, কাস্টমার বা পণ্যের কিছু হবে না।</string>
 
     <string name="settings_lock_section">অ্যাপ লক</string>
     <string name="settings_lock_toggle">পিন দিয়ে অ্যাপ লক করুন</string>

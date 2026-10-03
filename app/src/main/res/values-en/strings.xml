@@ -157,6 +157,17 @@
     <string name="settings_language_english">English</string>
     <string name="settings_banglish_toggle">Banglish to Bangla suggestions</string>
     <string name="settings_banglish_hint">Type in English letters (chal, taka, rahim) to get Bangla words and sentences; space accepts the first</string>
+    <string name="learned_title">Learned words and fixes</string>
+    <string name="learned_summary">%1$s fixes · %2$s typing picks</string>
+    <string name="learned_hint">The app learns from your corrections and typing. It all stays on this phone. Remove anything it got wrong.</string>
+    <string name="learned_corrections">Voice fixes</string>
+    <string name="learned_corrections_empty">Nothing learned yet. Fix a misheard name or product on the confirm card and it shows up here.</string>
+    <string name="learned_choices">Typing picks</string>
+    <string name="learned_choices_empty">Pick a suggestion while typing in English letters and it shows up here.</string>
+    <string name="learned_times">%1$s times</string>
+    <string name="learned_forget">Forget</string>
+    <string name="learned_clear_all">Clear all</string>
+    <string name="learned_clear_confirm">Everything the app has learned will be removed. Your ledger, customers and products are not affected.</string>
 
     <string name="settings_lock_section">App Lock</string>
     <string name="settings_lock_toggle">Lock the app with a PIN</string>

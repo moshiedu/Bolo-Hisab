@@ -16,6 +16,8 @@ data class BackupPayload(
     /** Absent in version 1 files, which predate stock tracking in backups. */
     val products: List<BackupProduct> = emptyList(),
     val history: List<BackupHistory> = emptyList(),
+    /** What the typing help learned. Null in files before version 3: restoring keeps the phone's own. */
+    val learning: BackupLearning? = null,
 )
 
 @Serializable
@@ -73,5 +75,25 @@ data class BackupHistory(
     val transcript: String,
 )
 
-/** 2 adds products and entry edit history. */
-const val BACKUP_FORMAT_VERSION = 2
+@Serializable
+data class BackupLearning(
+    val choices: List<BackupChoice> = emptyList(),
+    val words: List<BackupWordUsage> = emptyList(),
+    val pairs: List<BackupWordPair> = emptyList(),
+    val corrections: List<BackupCorrection> = emptyList(),
+)
+
+@Serializable
+data class BackupChoice(val typed: String, val text: String, val count: Int, val lastUsed: Long)
+
+@Serializable
+data class BackupWordUsage(val word: String, val count: Int, val lastUsed: Long)
+
+@Serializable
+data class BackupWordPair(val prev: String, val next: String, val count: Int, val lastUsed: Long)
+
+@Serializable
+data class BackupCorrection(val heard: String, val fixed: String, val count: Int, val lastUsed: Long)
+
+/** 2 adds products and entry edit history; 3 adds what the typing help learned. */
+const val BACKUP_FORMAT_VERSION = 3

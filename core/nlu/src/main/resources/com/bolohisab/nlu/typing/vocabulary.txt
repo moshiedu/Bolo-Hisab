@@ -1,0 +1,226 @@
+# Bolo Hisab built-in typing vocabulary.
+#
+# [words]   Bangla word <TAB> English/Banglish spellings typed for it, space separated (optional)
+# [phrases] a whole sentence or fixed pair; typing its first word offers the rest
+# [next]    a word <TAB> what usually follows it, best first, separated by "|"
+#           Slots: <number> = after any number, <customer> = after a customer's name
+#
+# Lines starting with # are comments. Keep spellings standard; regional words go in Dialect.kt.
+
+[words]
+# Money and credit
+টাকা	tk taka
+বাকি	due credit baki
+জমা	deposit joma
+দিয়েছে	paid dise dice diyeche
+দিয়েছেন	diyechen
+দিলাম	dilam
+দিল	dilo
+নিয়েছে	nise niyeche
+নিলাম	nilam
+পেলাম	received pelam
+শোধ	shodh
+পরিশোধ	porishodh
+নগদ	cash nogod
+বিক্রি	sale sold sell bikri
+খরচ	expense cost khoroch
+মোট	total mot
+লাভ	profit lav labh
+ফেরত	return refund ferot
+ছাড়	discount
+অগ্রিম	advance ogrim
+হিসাব	hisab account
+খাতা	khata ledger
+বিকাশ	bkash bikash
+রকেট	rocket
+উপায়	upay
+ব্যাংক	bank
+# Questions and time
+কত	koto
+কার	kar
+কাকে	kake
+আজ	today aj aaj
+আজকে	ajke
+গতকাল	yesterday gotokal
+সপ্তাহ	week soptah
+মাস	month mas
+বছর	year bochor
+সকাল	morning sokal
+বিকাল	afternoon bikal
+রাত	night rat
+সবচেয়ে	sobcheye
+বেশি	more beshi
+কম	less kom
+# People
+ভাই	bhai vai
+আপা	apa
+ভাবি	vabi bhabi
+চাচা	chacha
+মামা	mama
+খালা	khala
+কাস্টমার	customer
+কর্মচারী	staff worker
+# Shop running costs
+দোকান	shop dokan
+ভাড়া	rent vara bhara
+বিল	bill
+বেতন	salary beton
+বিদ্যুৎ	electricity biddut
+গ্যাস	gas
+ইন্টারনেট	internet
+রিচার্জ	recharge
+মাল	goods mal
+# Units
+কেজি	kg kilo keji
+গ্রাম	gm gram
+লিটার	liter litre ltr
+পিস	pc pcs piece pis
+ডজন	dozen
+হালি	hali
+প্যাকেট	packet pkt
+বোতল	bottle
+বস্তা	sack bosta
+কার্টন	carton
+মিটার	meter metre
+ফুট	feet foot ft
+গজ	yard goj
+পাতা	strip pata
+# Grocery
+চাল	rice
+মিনিকেট	miniket
+ডাল	lentil dal
+মসুর	mosur
+তেল	oil
+সয়াবিন	soybean
+সরিষা	mustard sorisha
+চিনি	sugar
+লবণ	salt lobon
+আটা	flour atta
+ময়দা	moida maida
+সুজি	suji semolina
+ডিম	egg eggs
+দুধ	milk dudh
+গুঁড়া দুধ	powder milk
+পেঁয়াজ	onion peyaj piyaj
+রসুন	garlic
+আদা	ginger
+আলু	potato alu
+মরিচ	chili chilli morich
+হলুদ	turmeric holud
+জিরা	cumin jira
+মসলা	spice moshla
+চা	tea cha
+চা পাতা	tea leaves
+কফি	coffee
+বিস্কুট	biscuit biscuits
+চানাচুর	chanachur
+মুড়ি	muri puffed rice
+চিড়া	chira
+সেমাই	semai
+নুডলস	noodles
+পাউরুটি	bread
+কেক	cake
+কলা	banana
+সাবান	soap
+শ্যাম্পু	shampoo
+টুথপেস্ট	toothpaste
+ব্রাশ	brush
+ডিটারজেন্ট	detergent
+টিস্যু	tissue
+মোমবাতি	candle
+দিয়াশলাই	matches match
+ব্যাটারি	battery
+পানি	water pani
+কোক	coke
+জুস	juice
+চকলেট	chocolate
+সিগারেট	cigarette
+মাছ	fish
+মাংস	meat
+মুরগি	chicken murgi
+# Pharmacy
+ওষুধ	medicine oshudh
+ট্যাবলেট	tablet
+ক্যাপসুল	capsule
+সিরাপ	syrup
+স্যালাইন	saline
+প্যারাসিটামল	paracetamol
+গ্যাস্ট্রিক	gastric
+মলম	ointment molom
+ব্যান্ডেজ	bandage
+# Hardware
+সিমেন্ট	cement
+রড	rod
+বালু	sand balu
+ইট	brick
+পেরেক	nail perek
+স্ক্রু	screw
+তার	wire
+পাইপ	pipe
+রং	paint rong
+বাল্ব	bulb
+# Numbers people say
+এক	ek
+দুই	dui
+তিন	tin
+চার	char
+পাঁচ	pach
+দশ	dosh
+একশো	eksho
+দুইশো	duisho
+পাঁচশো	pachsho
+হাজার	hajar thousand
+দেড়	der
+আড়াই	arai
+সাড়ে	sare
+আধা	adha half
+
+[phrases]
+আজ মোট বিক্রি কত
+গতকাল মোট বিক্রি কত
+এই সপ্তাহে মোট বিক্রি কত
+এই মাসে মোট বিক্রি কত
+সবচেয়ে বেশি বাকি কার
+কত টাকা বাকি
+টাকা বাকি
+টাকা দিয়েছে
+টাকা জমা দিয়েছে
+সব টাকা শোধ করেছে
+নগদ দিয়েছে
+বিকাশে দিয়েছে
+বাকিতে নিয়েছে
+নগদে বিক্রি
+দোকান ভাড়া
+বিদ্যুৎ বিল
+গ্যাস বিল
+পানির বিল
+ইন্টারনেট বিল
+মোবাইল রিচার্জ
+কর্মচারীর বেতন
+গাড়ি ভাড়া
+মাল কেনা
+সয়াবিন তেল
+চা পাতা
+গুঁড়া দুধ
+
+[next]
+<number>	টাকা|কেজি|লিটার|পিস|গ্রাম|হালি|ডজন|প্যাকেট|বোতল|বস্তা
+<customer>	কে|ভাই|আপা|এর কত বাকি
+ভাই	কে|এর কত বাকি
+আপা	কে|এর কত বাকি
+টাকা	বাকি|দিয়েছে|জমা দিয়েছে|নগদ|দিলাম
+কেজি	চাল|ডাল|চিনি|আটা|আলু|পেঁয়াজ|লবণ
+গ্রাম	মরিচ|হলুদ|জিরা|চা পাতা
+লিটার	সয়াবিন তেল|তেল|দুধ|পানি
+পিস	ডিম|সাবান|বিস্কুট|ব্যাটারি
+হালি	ডিম
+ডজন	ডিম|কলা
+প্যাকেট	বিস্কুট|নুডলস|চানাচুর|চা পাতা
+বোতল	তেল|পানি|কোক
+বস্তা	চাল|সিমেন্ট|আটা
+বাকি	দিলাম|নিয়েছে
+জমা	দিয়েছে
+মোট	বিক্রি|বাকি
+কত	টাকা|বাকি
+দোকান	ভাড়া
+বিদ্যুৎ	বিল

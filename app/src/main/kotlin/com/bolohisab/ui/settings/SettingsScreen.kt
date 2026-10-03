@@ -129,6 +129,7 @@ fun SettingsScreen(
                     },
                     modifier = Modifier.padding(top = 8.dp),
                 )
+                LearnedWordsItem()
 
                 Text(
                     stringResource(R.string.settings_lock_section),

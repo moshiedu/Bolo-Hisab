@@ -60,11 +60,29 @@ class PhoneticSuggester(private val dictionary: TypingDictionary) {
         val bangla = !latin && typed.all { isBanglaChar(it) }
         if (!latin && !bangla) return null
 
+        val predicted = previous.lastOrNull()?.let { p -> dictionary.nextAfter(p).map { BanglaText.key(it.text) }.toSet() }.orEmpty()
         val scored = mutableListOf<Scored>()
+        var keepLatin = false
         if (latin) {
             val lower = typed.lowercase()
             val key = PhoneticKey.ofLatin(typed)
             val skeleton = PhoneticKey.skeleton(key)
+
+            // What this shopkeeper picked for this exact spelling before beats every guess.
+            val learned = dictionary.choicesFor(lower)
+            keepLatin = learned.firstOrNull()?.let { it.text.equals(typed, ignoreCase = true) } == true
+            for (c in learned) {
+                if (c.text.equals(typed, ignoreCase = true)) continue
+                scored += Scored(Suggestion(c.text, SuggestionKind.WORD, WordSource.LEARNED), LEARNED_SCORE + 0.02 * minOf(c.count, 10), true)
+            }
+            if (lower.length >= 2) {
+                for (c in dictionary.choicesStartingWith(lower)) {
+                    if (c.text.any { isBanglaChar(it) }) {
+                        scored += Scored(Suggestion(c.text, SuggestionKind.COMPLETION, WordSource.LEARNED), 0.8 + 0.01 * minOf(c.count, 10), false)
+                    }
+                }
+            }
+
             for (w in dictionary.entries) {
                 if (w.isPhrase && w.source != WordSource.DOMAIN) {
                     nameMatch(w, context) { i -> latinMatch(lower, key, skeleton, w.wordKeys[i], w.wordSkeletons[i], emptyList(), loose = true) }
@@ -78,7 +96,7 @@ class PhoneticSuggester(private val dictionary: TypingDictionary) {
                     continue
                 }
                 val m = latinMatch(lower, key, skeleton, w.key, w.skeleton, w.aliases, loose = w.source != WordSource.DOMAIN) ?: continue
-                scored += Scored(Suggestion(w.text, if (m.whole) SuggestionKind.WORD else SuggestionKind.COMPLETION, w.source), weigh(m.score, w, context), m.whole)
+                scored += Scored(Suggestion(w.text, if (m.whole) SuggestionKind.WORD else SuggestionKind.COMPLETION, w.source), weigh(m.score, w, context, predicted), m.whole)
             }
         } else {
             val norm = BanglaText.key(typed)
@@ -93,7 +111,7 @@ class PhoneticSuggester(private val dictionary: TypingDictionary) {
                     continue
                 }
                 val m = banglaPrefix(norm, w.norm) ?: continue
-                scored += Scored(Suggestion(w.text, SuggestionKind.COMPLETION, w.source), weigh(m.score, w, context), false)
+                scored += Scored(Suggestion(w.text, SuggestionKind.COMPLETION, w.source), weigh(m.score, w, context, predicted), false)
             }
         }
 
@@ -108,7 +126,11 @@ class PhoneticSuggester(private val dictionary: TypingDictionary) {
         }
         addAll(scored.filter { !it.whole && it.score >= COMPLETION_MIN })
 
-        val items = if (latin) {
+        val items = if (latin && keepLatin) {
+            // Last time this spelling stayed in English (a name, a brand): offer that first, so
+            // space keeps it as typed.
+            listOf(Suggestion(typed, SuggestionKind.ORIGINAL)) + ordered.take(limit - 1)
+        } else if (latin) {
             ordered.take(limit - 1) + Suggestion(typed, SuggestionKind.ORIGINAL)
         } else {
             ordered.take(limit)
@@ -130,6 +152,10 @@ class PhoneticSuggester(private val dictionary: TypingDictionary) {
                 val rest = w.words.drop(k).joinToString(" ")
                 scored += Scored(Suggestion(rest, SuggestionKind.COMPLETION, w.source), 0.7 + 0.05 * k, false)
             }
+        }
+        // What usually comes next: built-in hints ("২ " → কেজি, টাকা) and this shop's own habits.
+        previous.lastOrNull()?.let { p ->
+            for (n in dictionary.nextAfter(p)) scored += Scored(Suggestion(n.text, SuggestionKind.COMPLETION), n.score, false)
         }
         val items = scored.sortedByDescending { it.score }.map { it.suggestion }.distinctBy { it.text }.take(limit)
         return if (items.isEmpty()) null else Suggestions(at, at, "", items)
@@ -206,31 +232,43 @@ class PhoneticSuggester(private val dictionary: TypingDictionary) {
     private fun banglaPrefix(typed: String, word: String): Match? =
         if (word.length > typed.length && word.startsWith(typed)) Match(0.6 + 0.3 * typed.length / word.length, false) else null
 
-    private fun weigh(score: Double, w: DictionaryWord, context: TypingContext): Double {
+    private fun weigh(score: Double, w: DictionaryWord, context: TypingContext, predicted: Set<String> = emptySet()): Double {
         val boost = when (context) {
             TypingContext.CUSTOMER -> if (w.source == WordSource.CUSTOMER) 1.15 else 0.85
             TypingContext.ITEM -> when (w.source) {
                 WordSource.PRODUCT, WordSource.ITEM -> 1.12
                 WordSource.CUSTOMER -> 0.8
-                WordSource.DOMAIN -> 1.0
+                WordSource.LEARNED, WordSource.DOMAIN -> 1.0
             }
             TypingContext.SENTENCE -> if (w.source == WordSource.DOMAIN) 1.0 else 1.05
             TypingContext.TEXT -> 1.0
         }
-        return score * w.weight * boost
+        val likelyNext = if (w.norm in predicted) 1.08 else 1.0
+        return score * w.weight * boost * dictionary.usageBoost(w.norm) * likelyNext
     }
 
-    /** The Bangla words written before the current one, normalised, nearest last. */
+    /**
+     * The words written before the current one, nearest last: Bangla words normalised, numbers as
+     * [TypingMemory.NUMBER], anything else as "" (which matches no phrase or hint).
+     */
     private fun previousWords(text: String, start: Int): List<String> =
         text.substring(0, start).trim().split(Regex("\\s+"))
-            .filter { w -> w.isNotEmpty() && w.all { isBanglaChar(it) } }
+            .filter { it.isNotEmpty() }
             .takeLast(MAX_CONTEXT)
-            .map(BanglaText::key)
+            .map { raw ->
+                val w = raw.trim(',', '.', '।', '?', '!')
+                when {
+                    w.isNotEmpty() && w.all { it.isDigit() || it == '.' } -> TypingMemory.NUMBER
+                    w.isNotEmpty() && w.all { isBanglaChar(it) } -> BanglaText.key(w)
+                    else -> ""
+                }
+            }
 
     companion object {
         private const val WHOLE_MIN = 0.7
         private const val COMPLETION_MIN = 0.55
         private const val MAX_CONTEXT = 3
+        private const val LEARNED_SCORE = 1.3
 
         internal fun isLatinChar(c: Char) = c in 'a'..'z' || c in 'A'..'Z' || c == '^'
 

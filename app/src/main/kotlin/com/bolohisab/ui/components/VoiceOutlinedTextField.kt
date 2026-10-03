@@ -224,6 +224,7 @@ fun VoiceOutlinedTextField(
             val found = s!!.suggest(old.text, at, ctx!!)
             val commit = found?.commitOnSpace
             if (found != null && commit != null && commit.text != found.typed) {
+                assist.recordChoice(found.typed, commit.text)
                 val (text, cursor) = PhoneticSuggester.apply(old.text, found, commit, trailing = next.text[at].toString())
                 set(TextFieldValue(text, TextRange(cursor)))
                 return
@@ -286,6 +287,8 @@ fun VoiceOutlinedTextField(
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 SuggestionStrip(suggestions) { picked ->
                     val s = suggestions ?: return@SuggestionStrip
+                    // A completion tapped once ("cha" → চাল) says nothing about what "cha" means.
+                    if (s.isLatin && picked.kind != SuggestionKind.COMPLETION) assist.recordChoice(s.typed, picked.text)
                     val (text, cursor) = PhoneticSuggester.apply(fieldValue.text, s, picked)
                     set(TextFieldValue(text, TextRange(cursor)))
                 }

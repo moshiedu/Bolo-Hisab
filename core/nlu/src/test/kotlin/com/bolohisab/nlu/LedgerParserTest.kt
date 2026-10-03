@@ -226,4 +226,18 @@ class LedgerParserTest {
         assertTrue(q is ParseResult.Query)
         assertEquals(1L, (((q as ParseResult.Query).query as LedgerQuery.CustomerDue).customer as CustomerRef.Existing).id)
     }
+
+    @Test fun separatePossessiveAfterANameIsStillADueQuestion() {
+        // The typing help offers "এর কত বাকি" after a name, written as its own word.
+        val q = parser.parse("রহিম এর কত বাকি")
+        assertTrue("got $q", q is ParseResult.Query)
+        assertEquals(1L, (((q as ParseResult.Query).query as LedgerQuery.CustomerDue).customer as CustomerRef.Existing).id)
+    }
+
+    @Test fun separateKeAfterANameStillRecordsCredit() {
+        val d = draft("রহিম কে ৫০০ টাকা বাকি দিলাম")
+        assertEquals(EntryType.CREDIT_SALE, d.type)
+        assertEquals(1L, (d.customer as CustomerRef.Existing).id)
+        assertEquals(taka(500), d.total)
+    }
 }

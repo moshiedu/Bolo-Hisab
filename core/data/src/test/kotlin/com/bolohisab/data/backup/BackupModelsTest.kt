@@ -36,4 +36,25 @@ class BackupModelsTest {
         val decoded = json.decodeFromString(BackupPayload.serializer(), json.encodeToString(BackupPayload.serializer(), payload))
         assertEquals(payload, decoded)
     }
+
+    @Test
+    fun `learning round-trips and is absent from older files`() {
+        val payload = BackupPayload(
+            version = BACKUP_FORMAT_VERSION,
+            exportedAt = 1,
+            customers = emptyList(),
+            entries = emptyList(),
+            learning = BackupLearning(
+                choices = listOf(BackupChoice("chal", "চাল", 3, 5)),
+                words = listOf(BackupWordUsage("চাল", 7, 5)),
+                pairs = listOf(BackupWordPair("<number>", "কেজি", 4, 5)),
+                corrections = listOf(BackupCorrection("রোহিম", "রহিম", 2, 5)),
+            ),
+        )
+        val decoded = json.decodeFromString(BackupPayload.serializer(), json.encodeToString(BackupPayload.serializer(), payload))
+        assertEquals(payload, decoded)
+
+        val v2 = """{"version":2,"exportedAt":1,"customers":[],"entries":[],"products":[],"history":[]}"""
+        assertEquals(null, json.decodeFromString(BackupPayload.serializer(), v2).learning)
+    }
 }

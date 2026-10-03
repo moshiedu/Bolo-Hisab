@@ -49,6 +49,8 @@ data class ReviewState(
      * worth ৳320. While set it wins over the item sum; null means the total follows the items.
      */
     val totalOverride: String? = null,
+    /** What the parser made of the transcript, kept so a save can learn from the shopkeeper's fixes. */
+    val parsed: EntryDraft? = null,
 ) {
     val showsItems: Boolean get() = type == EntryType.CASH_SALE || type == EntryType.CREDIT_SALE
     val needsCustomer: Boolean get() = type == EntryType.CREDIT_SALE || type == EntryType.PAYMENT_RECEIVED
@@ -169,6 +171,7 @@ data class ReviewState(
                 transcript = draft.transcript,
                 uncertain = draft.uncertain,
                 totalOverride = overrideFor(draft.total, draft.items),
+                parsed = draft,
             )
         }
 
