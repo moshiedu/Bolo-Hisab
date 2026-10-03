@@ -91,4 +91,25 @@ class ReviewStateTest {
         assertEquals(1250.0, Bn.parseAmount("১,২৫০"))
         assertEquals("35.5", Bn.editable(Poisha(3550)))
     }
+
+    @Test fun spokenDiscountedTotalIsKeptOverItemSum() {
+        val r = review("রহিম ২ কেজি চাল ১২০ টাকা আর ১ লিটার তেল ২০০ টাকা, মোট ৩০০ টাকা, ১০০ দিয়েছে")
+        assertEquals(taka(320), r.itemSum)
+        assertEquals(taka(300), r.total)
+        assertEquals(taka(200), r.due)
+        assertEquals(taka(300), r.toDraft().total)
+        assertEquals(taka(200), r.toDraft().balanceDelta)
+    }
+
+    @Test fun clearingTheOverrideFallsBackToItemSum() {
+        val r = review("রহিম ২ কেজি চাল ১২০ টাকা আর ১ লিটার তেল ২০০ টাকা, মোট ৩০০ টাকা, ১০০ দিয়েছে")
+            .copy(totalOverride = null)
+        assertEquals(taka(320), r.total)
+    }
+
+    @Test fun matchingSpokenTotalSetsNoOverride() {
+        val r = review("রহিম ২ কেজি চাল ১২০ টাকা আর ১ লিটার তেল ২০০ টাকা, মোট ৩২০ টাকা")
+        assertEquals(null, r.totalOverride)
+        assertEquals(taka(320), r.total)
+    }
 }

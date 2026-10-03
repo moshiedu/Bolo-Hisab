@@ -2,8 +2,10 @@ package com.bolohisab.data.backup
 
 import com.bolohisab.data.db.CustomerEntity
 import com.bolohisab.data.db.EntryEntity
+import com.bolohisab.data.db.EntryHistoryEntity
 import com.bolohisab.data.db.EntryItemEntity
 import com.bolohisab.data.db.LedgerDao
+import com.bolohisab.data.db.ProductEntity
 import kotlinx.serialization.json.Json
 import java.time.Clock
 import javax.inject.Inject
@@ -36,7 +38,13 @@ class BackupManager @Inject constructor(
                 items = d.items.map { BackupItem(it.name, it.quantity, it.unit, it.pricePoisha) },
             )
         }
-        val payload = BackupPayload(BACKUP_FORMAT_VERSION, clock.millis(), customers, entries)
+        val products = dao.allProductsOnce().map {
+            BackupProduct(it.id, it.name, it.unit, it.stockQty, it.lowStockThreshold, it.createdAt)
+        }
+        val history = dao.allHistoryOnce().map {
+            BackupHistory(it.entryId, it.changedAt, it.type, it.totalPoisha, it.paidPoisha, it.balanceDelta, it.note, it.transcript)
+        }
+        val payload = BackupPayload(BACKUP_FORMAT_VERSION, clock.millis(), customers, entries, products, history)
         val plain = json.encodeToString(BackupPayload.serializer(), payload).toByteArray(Charsets.UTF_8)
         return BackupCrypto.encrypt(plain, passphrase)
     }
@@ -66,6 +74,24 @@ class BackupManager @Inject constructor(
         val items = payload.entries.flatMap { e ->
             e.items.map { EntryItemEntity(entryId = e.id, name = it.name, quantity = it.quantity, unit = it.unit, pricePoisha = it.pricePoisha) }
         }
-        dao.replaceAll(customers, entries, items)
+        val history = payload.history.map {
+            EntryHistoryEntity(
+                entryId = it.entryId,
+                changedAt = it.changedAt,
+                type = it.type,
+                totalPoisha = it.totalPoisha,
+                paidPoisha = it.paidPoisha,
+                balanceDelta = it.balanceDelta,
+                note = it.note,
+                transcript = it.transcript,
+            )
+        }
+        // Version 1 files carry no products; keep the phone's stock list rather than wiping it.
+        val products = if (payload.version >= 2) {
+            payload.products.map { ProductEntity(it.id, it.name, it.unit, it.stockQty, it.lowStockThreshold, it.createdAt) }
+        } else {
+            null
+        }
+        dao.replaceAll(customers, entries, items, history, products)
     }
 }

@@ -65,6 +65,8 @@
     <string name="review_amount">Amount</string>
     <string name="review_note">Note</string>
     <string name="review_check">Check</string>
+    <string name="review_items_sum">Items add up to %1$s</string>
+    <string name="review_use_items_sum">Use the items total</string>
     <string name="review_need_customer">Enter the customer\'s name for credit or a payment</string>
     <string name="review_need_amount">Enter the amount</string>
     <string name="review_paid_too_much">The amount paid can\'t be more than the total</string>
@@ -163,6 +165,7 @@
     <string name="lock_enter_title">Enter PIN</string>
     <string name="lock_mismatch">The PINs didn\'t match, try again</string>
     <string name="lock_wrong">Wrong PIN</string>
+    <string name="lock_wait">Too many wrong PINs. Try again in %1$s</string>
     <string name="lock_backspace">Backspace</string>
 
     <string name="settings_backup_section">Backup</string>

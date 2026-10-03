@@ -205,4 +205,12 @@ class LedgerParserTest {
         assertTrue(parser.parse("") is ParseResult.Unrecognized)
         assertTrue(parser.parse("হ্যালো কেমন আছেন") is ParseResult.Unrecognized)
     }
+
+    @Test fun spokenTotalBelowItemPricesIsKeptAndFlagged() {
+        val d = draft("রহিম ২ কেজি চাল ১২০ টাকা আর ১ লিটার তেল ২০০ টাকা, মোট ৩০০ টাকা, ১০০ দিয়েছে")
+        assertEquals(taka(320), Poisha(d.items.sumOf { it.price!!.value }))
+        assertEquals(taka(300), d.total)
+        assertEquals(taka(200), d.due)
+        assertTrue(Field.TOTAL in d.uncertain)
+    }
 }

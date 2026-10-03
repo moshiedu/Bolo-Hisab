@@ -13,6 +13,9 @@ data class BackupPayload(
     val exportedAt: Long,
     val customers: List<BackupCustomer>,
     val entries: List<BackupEntry>,
+    /** Absent in version 1 files, which predate stock tracking in backups. */
+    val products: List<BackupProduct> = emptyList(),
+    val history: List<BackupHistory> = emptyList(),
 )
 
 @Serializable
@@ -48,4 +51,27 @@ data class BackupItem(
     val pricePoisha: Long?,
 )
 
-const val BACKUP_FORMAT_VERSION = 1
+@Serializable
+data class BackupProduct(
+    val id: Long,
+    val name: String,
+    val unit: String?,
+    val stockQty: Double,
+    val lowStockThreshold: Double?,
+    val createdAt: Long,
+)
+
+@Serializable
+data class BackupHistory(
+    val entryId: Long,
+    val changedAt: Long,
+    val type: String,
+    val totalPoisha: Long,
+    val paidPoisha: Long,
+    val balanceDelta: Long,
+    val note: String?,
+    val transcript: String,
+)
+
+/** 2 adds products and entry edit history. */
+const val BACKUP_FORMAT_VERSION = 2

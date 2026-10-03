@@ -1,5 +1,6 @@
 package com.bolohisab.data
 
+import androidx.room.withTransaction
 import com.bolohisab.data.db.CustomerBalanceRow
 import com.bolohisab.data.db.CustomerEntity
 import com.bolohisab.data.db.EntryEntity
@@ -7,6 +8,7 @@ import com.bolohisab.data.db.EntryHistoryEntity
 import com.bolohisab.data.db.EntryItemEntity
 import com.bolohisab.data.db.EntryWithDetails
 import com.bolohisab.data.db.LedgerDao
+import com.bolohisab.data.db.LedgerDatabase
 import com.bolohisab.data.db.ProductEntity
 import com.bolohisab.data.db.TypeTotalRow
 import com.bolohisab.nlu.CustomerRef
@@ -84,6 +86,7 @@ data class EntryHistorySnapshot(
 
 @Singleton
 class LedgerRepository @Inject constructor(
+    private val db: LedgerDatabase,
     private val dao: LedgerDao,
     private val clock: Clock,
 ) {
@@ -171,8 +174,11 @@ class LedgerRepository @Inject constructor(
         }
     }
 
-    /** Saves a confirmed draft, creating the customer first when it is new. */
-    suspend fun save(draft: EntryDraft): SavedEntry {
+    /**
+     * Saves a confirmed draft, creating the customer first when it is new. One transaction:
+     * the new customer, the entry, its items and the stock change land together or not at all.
+     */
+    suspend fun save(draft: EntryDraft): SavedEntry = db.withTransaction {
         val now = clock.millis()
         val customerId = when (val c = draft.customer) {
             is CustomerRef.Existing -> c.id
@@ -200,24 +206,31 @@ class LedgerRepository @Inject constructor(
         }
         val saved = SavedEntry(dao.insertEntryWithItems(entry, items), customerId)
         applyStockDelta(draft.items, sign = -1)
-        return saved
+        saved
     }
 
-    /** Soft-deletes an entry, giving back any stock it took. */
-    suspend fun undo(entryId: Long) {
+    /**
+     * Soft-deletes an entry, giving back any stock it took. A no-op when it is already
+     * deleted, so a double tap or a repeated undo cannot return the same stock twice.
+     */
+    suspend fun undo(entryId: Long): Unit = db.withTransaction {
+        val current = dao.entryById(entryId) ?: return@withTransaction
+        if (current.deletedAt != null) return@withTransaction
         applyStockDelta(dao.itemsForEntryOnce(entryId).map(::toItemLine), sign = 1)
         dao.softDelete(entryId, clock.millis())
     }
 
-    /** Un-deletes an entry, taking its stock back out again. */
-    suspend fun restore(entryId: Long) {
+    /** Un-deletes an entry, taking its stock back out again. A no-op when it is not deleted. */
+    suspend fun restore(entryId: Long): Unit = db.withTransaction {
+        val current = dao.entryById(entryId) ?: return@withTransaction
+        if (current.deletedAt == null) return@withTransaction
         applyStockDelta(dao.itemsForEntryOnce(entryId).map(::toItemLine), sign = -1)
         dao.restore(entryId)
     }
 
     /** Snapshots the current values into history, then applies [draft] to an existing entry. Returns the resolved customer id, if any. */
-    suspend fun update(entryId: Long, draft: EntryDraft): Long? {
-        val current = dao.entryById(entryId) ?: return null
+    suspend fun update(entryId: Long, draft: EntryDraft): Long? = db.withTransaction {
+        val current = dao.entryById(entryId) ?: return@withTransaction null
         val oldItems = dao.itemsForEntryOnce(entryId).map(::toItemLine)
         val now = clock.millis()
         val customerId = when (val c = draft.customer) {
@@ -254,9 +267,12 @@ class LedgerRepository @Inject constructor(
             )
         }
         dao.editEntry(history, updated, items)
-        applyStockDelta(oldItems, sign = 1)
-        applyStockDelta(draft.items, sign = -1)
-        return customerId
+        // A deleted entry already gave its stock back; only a live one moves stock on edit.
+        if (current.deletedAt == null) {
+            applyStockDelta(oldItems, sign = 1)
+            applyStockDelta(draft.items, sign = -1)
+        }
+        customerId
     }
 
     suspend fun historyOf(entryId: Long): List<EntryHistorySnapshot> = dao.historyFor(entryId).map {

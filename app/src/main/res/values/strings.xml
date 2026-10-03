@@ -65,6 +65,8 @@
     <string name="review_amount">টাকার পরিমাণ</string>
     <string name="review_note">বিবরণ</string>
     <string name="review_check">যাচাই করুন</string>
+    <string name="review_items_sum">পণ্যের যোগফল %1$s</string>
+    <string name="review_use_items_sum">পণ্যের যোগফল নিন</string>
     <string name="review_need_customer">বাকি বা জমার জন্য কাস্টমারের নাম দিন</string>
     <string name="review_need_amount">টাকার পরিমাণ দিন</string>
     <string name="review_paid_too_much">জমা মোটের চেয়ে বেশি হতে পারে না</string>
@@ -163,6 +165,7 @@
     <string name="lock_enter_title">পিন দিন</string>
     <string name="lock_mismatch">পিন দুটো মিলেনি, আবার চেষ্টা করুন</string>
     <string name="lock_wrong">ভুল পিন</string>
+    <string name="lock_wait">অনেকবার ভুল পিন। %1$s পরে আবার চেষ্টা করুন</string>
     <string name="lock_backspace">মুছুন</string>
 
     <string name="settings_backup_section">ব্যাকআপ</string>

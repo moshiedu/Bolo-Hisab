@@ -42,6 +42,7 @@ import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Contacts
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.PersonAddAlt
+import androidx.compose.material.icons.rounded.Restore
 import androidx.compose.material.icons.rounded.ShoppingBag
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -303,7 +304,27 @@ private fun ItemsEditor(review: ReviewState, onChange: (ReviewState) -> Unit) {
 private fun AmountFields(review: ReviewState, onChange: (ReviewState) -> Unit) {
     val itemsPriced = review.showsItems && review.items.any { Bn.parseAmount(it.price) != null }
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        if (itemsPriced) {
+        if (itemsPriced && review.totalOverride != null) {
+            // The spoken total disagrees with the item prices (usually a discount): show both and
+            // let the shopkeeper keep it or snap back to the item sum.
+            OutlinedTextField(
+                value = review.totalOverride,
+                onValueChange = { onChange(review.copy(totalOverride = it, uncertain = review.uncertain - Field.TOTAL)) },
+                label = { Text(stringResource(R.string.review_total)) },
+                prefix = { Text("৳") },
+                singleLine = true,
+                textStyle = MaterialTheme.typography.titleMedium.merge(MoneyStyle),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                colors = fieldColors(review.isFlagged(Field.TOTAL)),
+                supportingText = { Text(stringResource(R.string.review_items_sum, Bn.taka(review.itemSum))) },
+                trailingIcon = {
+                    IconButton(onClick = { onChange(review.copy(totalOverride = null, uncertain = review.uncertain - Field.TOTAL)) }) {
+                        Icon(Icons.Rounded.Restore, contentDescription = stringResource(R.string.review_use_items_sum))
+                    }
+                },
+                modifier = Modifier.fillMaxWidth(),
+            )
+        } else if (itemsPriced) {
             SummaryLine(stringResource(R.string.review_total), Bn.taka(review.total), emphasised = true)
         } else {
             val flagged = review.isFlagged(Field.AMOUNT) || review.isFlagged(Field.TOTAL)
