@@ -112,4 +112,15 @@ class ReviewStateTest {
         assertEquals(null, r.totalOverride)
         assertEquals(taka(320), r.total)
     }
+
+    @Test fun extraSpacesStillMatchTheExistingCustomer() {
+        val r = ReviewState.blank(EntryType.CREDIT_SALE).withCustomer("  রহিম ", customers)
+        assertEquals(1L, r.matchedCustomerId)
+    }
+
+    @Test fun aNearlySameNameIsOfferedBeforeCreatingANewCustomer() {
+        val r = ReviewState.blank(EntryType.CREDIT_SALE).withCustomer("রহীম", customers)
+        assertEquals(null, r.matchedCustomerId)
+        assertEquals(KnownCustomer(1, "রহিম"), r.nearMatch(customers))
+    }
 }

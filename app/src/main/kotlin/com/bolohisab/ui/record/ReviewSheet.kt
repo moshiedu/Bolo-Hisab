@@ -83,6 +83,7 @@ import com.bolohisab.R
 import com.bolohisab.nlu.EntryType
 import com.bolohisab.nlu.Field
 import com.bolohisab.nlu.KnownCustomer
+import com.bolohisab.nlu.typing.TypingContext
 import com.bolohisab.ui.components.VoiceOutlinedTextField
 import com.bolohisab.ui.components.formWidth
 import com.bolohisab.ui.components.label
@@ -197,6 +198,7 @@ private fun CustomerField(review: ReviewState, customers: List<KnownCustomer>, o
             label = { Text(stringResource(R.string.review_customer)) },
             leadingIcon = { Icon(Icons.Rounded.Person, contentDescription = null) },
             singleLine = true,
+            typing = TypingContext.CUSTOMER,
             isError = missing,
             colors = fieldColors(flagged),
             trailingContent = {
@@ -218,8 +220,10 @@ private fun CustomerField(review: ReviewState, customers: List<KnownCustomer>, o
             modifier = Modifier.fillMaxWidth(),
         )
         val query = review.customerName.trim()
-        val suggestions = customers
-            .filter { query.isNotEmpty() && it.name.contains(query, ignoreCase = true) && it.id != review.matchedCustomerId }
+        val near = review.nearMatch(customers)
+        val suggestions = (listOfNotNull(near) + customers
+            .filter { query.isNotEmpty() && it.name.contains(query, ignoreCase = true) && it.id != review.matchedCustomerId })
+            .distinctBy { it.id }
             .take(5)
         AnimatedVisibility(
             visible = suggestions.isNotEmpty(),
@@ -258,6 +262,7 @@ private fun ItemsEditor(review: ReviewState, onChange: (ReviewState) -> Unit) {
                         placeholder = { Text(stringResource(R.string.review_item_name)) },
                         leadingIcon = { Icon(Icons.Rounded.ShoppingBag, contentDescription = null) },
                         singleLine = true,
+                        typing = TypingContext.ITEM,
                         modifier = Modifier.weight(1f),
                     )
                     IconButton(onClick = { onChange(review.copy(items = review.items - item)) }) {

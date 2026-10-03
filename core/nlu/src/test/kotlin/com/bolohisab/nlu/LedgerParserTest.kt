@@ -213,4 +213,17 @@ class LedgerParserTest {
         assertEquals(taka(200), d.due)
         assertTrue(Field.TOTAL in d.uncertain)
     }
+
+    @Test fun regionalWordForTakaParsesLikeTheStandard() {
+        val chattogram = draft("রহিম ৫০০ টেঁয়া বাকি")
+        assertEquals(EntryType.CREDIT_SALE, chattogram.type)
+        assertEquals(taka(500), chattogram.total)
+        assertEquals(taka(500), draft("রহিম ৫০০ টেখা বাকি").total)
+    }
+
+    @Test fun colloquialHowMuchIsAQuestion() {
+        val q = parser.parse("রহিমের কয় টাকা বাকি")
+        assertTrue(q is ParseResult.Query)
+        assertEquals(1L, (((q as ParseResult.Query).query as LedgerQuery.CustomerDue).customer as CustomerRef.Existing).id)
+    }
 }

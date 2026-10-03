@@ -2,6 +2,7 @@ package com.bolohisab.ui.record
 
 import com.bolohisab.data.EntryHistorySnapshot
 import com.bolohisab.data.LedgerEntry
+import com.bolohisab.nlu.CustomerMatcher
 import com.bolohisab.nlu.CustomerRef
 import com.bolohisab.nlu.EntryDraft
 import com.bolohisab.nlu.EntryType
@@ -89,15 +90,25 @@ data class ReviewState(
         return copy(type = newType, amount = carried, uncertain = uncertain - Field.TYPE)
     }
 
-    fun withCustomer(name: String, known: List<KnownCustomer>): ReviewState {
-        val exact = known.firstOrNull { it.name.trim().equals(name.trim(), ignoreCase = true) }
-        return copy(customerName = name, matchedCustomerId = exact?.id, uncertain = uncertain - Field.CUSTOMER, pickedPhone = null)
-    }
+    fun withCustomer(name: String, known: List<KnownCustomer>): ReviewState =
+        copy(customerName = name, matchedCustomerId = exactMatch(name, known)?.id, uncertain = uncertain - Field.CUSTOMER, pickedPhone = null)
 
     /** Sets the customer name and phone together, from the system contact picker. */
-    fun withContactPicked(name: String, phone: String, known: List<KnownCustomer>): ReviewState {
-        val exact = known.firstOrNull { it.name.trim().equals(name.trim(), ignoreCase = true) }
-        return copy(customerName = name, matchedCustomerId = exact?.id, uncertain = uncertain - Field.CUSTOMER, pickedPhone = phone)
+    fun withContactPicked(name: String, phone: String, known: List<KnownCustomer>): ReviewState =
+        copy(customerName = name, matchedCustomerId = exactMatch(name, known)?.id, uncertain = uncertain - Field.CUSTOMER, pickedPhone = phone)
+
+    /**
+     * An existing customer whose name is close to, but not exactly, what was typed ("রহীম" for
+     * "রহিম"), so the card can ask "did you mean" before a near-duplicate customer is created.
+     */
+    fun nearMatch(known: List<KnownCustomer>): KnownCustomer? {
+        if (!isNewCustomer) return null
+        return CustomerMatcher(known).match(customerName.trim(), threshold = 0.75)?.customer
+    }
+
+    private fun exactMatch(name: String, known: List<KnownCustomer>): KnownCustomer? {
+        val key = CustomerMatcher.nameKey(name)
+        return if (key.isEmpty()) null else known.firstOrNull { CustomerMatcher.nameKey(it.name) == key }
     }
 
     fun toDraft(): EntryDraft {

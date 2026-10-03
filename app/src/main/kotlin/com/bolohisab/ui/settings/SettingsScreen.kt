@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.CloudDownload
 import androidx.compose.material.icons.rounded.CloudUpload
+import androidx.compose.material.icons.rounded.Keyboard
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.LockOpen
 import androidx.compose.material.icons.rounded.Password
@@ -61,6 +62,7 @@ fun SettingsScreen(
     val backup by backupViewModel.state.collectAsStateWithLifecycle()
     val digitStyle by displayViewModel.digitStyle.collectAsStateWithLifecycle()
     val language by displayViewModel.language.collectAsStateWithLifecycle()
+    val banglishTyping by displayViewModel.banglishTyping.collectAsStateWithLifecycle()
 
     if (state.pinSetup != PinSetupStep.Hidden) {
         PinSetupOverlay(state, viewModel)
@@ -118,6 +120,15 @@ fun SettingsScreen(
                     modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 20.dp, bottom = 12.dp),
                 )
                 LanguageSelector(language, displayViewModel::setLanguage)
+                ListItem(
+                    leadingContent = { Icon(Icons.Rounded.Keyboard, contentDescription = null) },
+                    headlineContent = { Text(stringResource(R.string.settings_banglish_toggle)) },
+                    supportingContent = { Text(stringResource(R.string.settings_banglish_hint)) },
+                    trailingContent = {
+                        Switch(checked = banglishTyping, onCheckedChange = displayViewModel::setBanglishTyping)
+                    },
+                    modifier = Modifier.padding(top = 8.dp),
+                )
 
                 Text(
                     stringResource(R.string.settings_lock_section),

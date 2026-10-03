@@ -39,6 +39,7 @@
     <string name="undone">Entry deleted</string>
     <string name="not_understood">Couldn\'t understand: “%1$s”</string>
     <string name="nothing_heard">Didn\'t hear anything, try again</string>
+    <string name="mic_busy">Another app is using the microphone. End the call or recording and try again.</string>
     <string name="mic_permission_needed">Voice entry needs the microphone. You can type entries instead.</string>
     <string name="model_missing">Voice model isn\'t ready yet. Type your entries for now.</string>
     <string name="model_loading">Starting voice…</string>
@@ -154,6 +155,8 @@
     <string name="settings_language_section">Language</string>
     <string name="settings_language_bangla">বাংলা</string>
     <string name="settings_language_english">English</string>
+    <string name="settings_banglish_toggle">Banglish to Bangla suggestions</string>
+    <string name="settings_banglish_hint">Type in English letters (chal, taka, rahim) to get Bangla words and sentences; space accepts the first</string>
 
     <string name="settings_lock_section">App Lock</string>
     <string name="settings_lock_toggle">Lock the app with a PIN</string>

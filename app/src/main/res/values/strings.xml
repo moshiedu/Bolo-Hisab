@@ -39,6 +39,7 @@
     <string name="undone">হিসাবটি বাদ দেওয়া হয়েছে</string>
     <string name="not_understood">বুঝতে পারিনি: “%1$s”</string>
     <string name="nothing_heard">কিছু শোনা যায়নি, আবার বলুন</string>
+    <string name="mic_busy">মাইক্রোফোন অন্য অ্যাপ ব্যবহার করছে। কল বা রেকর্ডিং বন্ধ করে আবার চেষ্টা করুন।</string>
     <string name="mic_permission_needed">মাইক ছাড়া ভয়েস এন্ট্রি হবে না। টাইপ করেও লিখতে পারেন।</string>
     <string name="model_missing">ভয়েস মডেল এখনো নেই। আপাতত টাইপ করে হিসাব লিখুন।</string>
     <string name="model_loading">ভয়েস চালু হচ্ছে…</string>
@@ -154,6 +155,8 @@
     <string name="settings_language_section">ভাষা</string>
     <string name="settings_language_bangla">বাংলা</string>
     <string name="settings_language_english">English</string>
+    <string name="settings_banglish_toggle">বাংলিশ থেকে বাংলা সাজেশন</string>
+    <string name="settings_banglish_hint">ইংরেজি অক্ষরে লিখলে (chal, taka, rahim) বাংলা শব্দ ও বাক্য দেখাবে, স্পেস দিলে বসে যাবে</string>
 
     <string name="settings_lock_section">অ্যাপ লক</string>
     <string name="settings_lock_toggle">পিন দিয়ে অ্যাপ লক করুন</string>

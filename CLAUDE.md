@@ -8,6 +8,17 @@ one spoken sentence → many items → confirm card → saved. Nothing is saved 
 before v1, scope was widened: stock/inventory, customer profiles (address, photo) and the rest of
 the khata basics ship in v1, with voice-first entry as the differentiator.
 
+## Input help (key differentiator alongside voice)
+- **Banglish typing** (`:core:nlu` `typing/`): Avro-style. `AvroPhonetic` is the raw transliteration;
+  `PhoneticKey` is a loose sound key so "chal"/"taka"/"rohim" reach চাল/টাকা/রহিম; `TypingDictionary`
+  holds the Bolo Hisab vocabulary, sentences ("আজ মোট বিক্রি কত") and English aliases ("kg", "oil"),
+  plus the shop's customers/products/past items; `PhoneticSuggester` ranks them. Space/comma commits
+  the highlighted whole-word match, never a completion. UI: the strip inside `VoiceOutlinedTextField`
+  (`typing = TypingContext.*` per field), toggle in Settings.
+- **Dialects** (`Dialect.kt`): region-tagged variant → standard word map run before parsing. Only add
+  words with a single unambiguous ledger meaning, from field data. Voice-side dialect support needs
+  ASR fine-tuning on regional recordings; this map covers the text side.
+
 ## Modules
 - `:core:nlu` — pure Kotlin, no Android. `LedgerParser` (sentence → `EntryDraft` / `LedgerQuery`),
   `BanglaNumbers`, `CustomerMatcher`, `ItemMatcher`, `Lexicon`. Unsure fields go in `EntryDraft.uncertain`.

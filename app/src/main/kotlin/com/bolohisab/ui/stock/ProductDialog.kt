@@ -32,6 +32,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import com.bolohisab.R
 import com.bolohisab.data.Product
 import com.bolohisab.nlu.QuantityUnit
+import com.bolohisab.nlu.typing.TypingContext
 import com.bolohisab.ui.components.VoiceOutlinedTextField
 import com.bolohisab.ui.format.Bn
 
@@ -63,6 +64,7 @@ fun ProductDialog(
                     label = { Text(stringResource(R.string.stock_name)) },
                     leadingIcon = { Icon(Icons.Rounded.Inventory2, contentDescription = null) },
                     singleLine = true,
+                    typing = TypingContext.ITEM,
                     modifier = Modifier.focusRequester(focus).fillMaxWidth(),
                 )
                 ExposedDropdownMenuBox(expanded = unitMenuOpen, onExpandedChange = { unitMenuOpen = it }) {

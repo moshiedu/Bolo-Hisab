@@ -114,6 +114,10 @@ class SherpaSpeechRecognizer(
             AudioFormat.ENCODING_PCM_16BIT,
             maxOf(minBuffer, CHUNK * 4),
         )
+        if (audio.state != AudioRecord.STATE_INITIALIZED) {
+            audio.release()
+            throw MicUnavailableException()
+        }
         val stream: OnlineStream = rec.createStream(
             if (hotwordsSupported) hotwords.filter { it.isNotBlank() }.joinToString("\n") else "",
         )
@@ -122,9 +126,18 @@ class SherpaSpeechRecognizer(
         var lastPartial = ""
         try {
             audio.startRecording()
+            if (audio.recordingState != AudioRecord.RECORDSTATE_RECORDING) throw MicUnavailableException()
+            var emptyReads = 0
             while (currentCoroutineContext().isActive && !stopRequested.get()) {
                 val n = audio.read(pcm, 0, CHUNK)
-                if (n <= 0) continue
+                // A negative count is an error (device lost, mic taken by a call) and will not recover;
+                // a run of empty reads means the same. Either way fail instead of spinning the CPU.
+                if (n < 0) throw MicUnavailableException()
+                if (n == 0) {
+                    if (++emptyReads > MAX_EMPTY_READS) throw MicUnavailableException()
+                    continue
+                }
+                emptyReads = 0
                 var sumSquares = 0.0
                 for (i in 0 until n) {
                     val s = pcm[i] / 32768f
@@ -156,5 +169,6 @@ class SherpaSpeechRecognizer(
         const val SAMPLE_RATE = 16_000
         const val CHUNK = 1_600 // 100 ms
         const val THREADS = 2
+        const val MAX_EMPTY_READS = 20
     }
 }

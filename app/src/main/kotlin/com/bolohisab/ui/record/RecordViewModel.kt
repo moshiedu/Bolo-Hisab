@@ -11,6 +11,7 @@ import com.bolohisab.nlu.LedgerQuery
 import com.bolohisab.nlu.ParseResult
 import com.bolohisab.nlu.Period
 import com.bolohisab.nlu.Poisha
+import com.bolohisab.voice.MicUnavailableException
 import com.bolohisab.voice.ModelState
 import com.bolohisab.voice.SpeechEvent
 import com.bolohisab.voice.SpeechRecognizer
@@ -49,6 +50,7 @@ sealed interface RecordEvent {
     data object NothingHeard : RecordEvent
     data object HoldToTalk : RecordEvent
     data object ModelUnavailable : RecordEvent
+    data object MicBusy : RecordEvent
     data class Failed(val message: String) : RecordEvent
 }
 
@@ -117,7 +119,7 @@ class RecordViewModel @Inject constructor(
                 }
             } catch (t: Throwable) {
                 if (t is kotlinx.coroutines.CancellationException) throw t
-                events.send(RecordEvent.Failed(t.message ?: t::class.java.simpleName))
+                events.send(if (t is MicUnavailableException) RecordEvent.MicBusy else RecordEvent.Failed(t.message ?: t::class.java.simpleName))
             } finally {
                 _state.update { it.copy(mic = MicState.Idle) }
             }

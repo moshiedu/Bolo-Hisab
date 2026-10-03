@@ -98,6 +98,7 @@ fun HomeScreen(
     val modelMissing = stringResource(R.string.model_missing)
     val notUnderstood = stringResource(R.string.not_understood, "%s")
     val failed = stringResource(R.string.save_failed, "%s")
+    val micBusy = stringResource(R.string.mic_busy)
 
     LaunchedEffect(Unit) {
         recordViewModel.eventFlow.collect { event ->
@@ -118,6 +119,7 @@ fun HomeScreen(
                 RecordEvent.NothingHeard -> snackbar.showSnackbar(nothingHeard)
                 RecordEvent.HoldToTalk -> snackbar.showSnackbar(holdHint)
                 RecordEvent.ModelUnavailable -> { snackbar.showSnackbar(modelMissing); typing = true }
+                RecordEvent.MicBusy -> snackbar.showSnackbar(micBusy)
                 is RecordEvent.Failed -> snackbar.showSnackbar(failed.format(event.message))
             }
         }

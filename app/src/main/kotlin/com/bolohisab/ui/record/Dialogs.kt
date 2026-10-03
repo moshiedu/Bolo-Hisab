@@ -29,6 +29,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.bolohisab.R
 import com.bolohisab.nlu.Period
+import com.bolohisab.nlu.typing.TypingContext
 import com.bolohisab.ui.components.VoiceOutlinedTextField
 import com.bolohisab.ui.format.Bn
 import com.bolohisab.ui.theme.LedgerTheme
@@ -53,6 +54,7 @@ fun TypeEntryDialog(onSubmit: (String) -> Unit, onDismiss: () -> Unit) {
                 minLines = 2,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(onDone = { if (text.isNotBlank()) onSubmit(text) }),
+                typing = TypingContext.SENTENCE,
                 modifier = Modifier.fillMaxWidth().focusRequester(focus),
             )
         },

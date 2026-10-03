@@ -11,6 +11,7 @@ import com.bolohisab.data.db.LedgerDao
 import com.bolohisab.data.db.LedgerDatabase
 import com.bolohisab.data.db.ProductEntity
 import com.bolohisab.data.db.TypeTotalRow
+import com.bolohisab.nlu.CustomerMatcher
 import com.bolohisab.nlu.CustomerRef
 import com.bolohisab.nlu.EntryDraft
 import com.bolohisab.nlu.EntryType
@@ -175,16 +176,26 @@ class LedgerRepository @Inject constructor(
     }
 
     /**
+     * Id for the draft's customer. A "new" customer whose name is identical (after normalising
+     * spacing, case and Unicode form) to an existing one reuses it rather than creating a twin.
+     */
+    private suspend fun resolveCustomerId(customer: CustomerRef?, now: Long): Long? = when (customer) {
+        is CustomerRef.Existing -> customer.id
+        is CustomerRef.New -> {
+            val key = CustomerMatcher.nameKey(customer.name)
+            dao.allCustomersOnce().firstOrNull { CustomerMatcher.nameKey(it.name) == key }?.id
+                ?: dao.insertCustomer(CustomerEntity(name = customer.name.trim(), createdAt = now))
+        }
+        null -> null
+    }
+
+    /**
      * Saves a confirmed draft, creating the customer first when it is new. One transaction:
      * the new customer, the entry, its items and the stock change land together or not at all.
      */
     suspend fun save(draft: EntryDraft): SavedEntry = db.withTransaction {
         val now = clock.millis()
-        val customerId = when (val c = draft.customer) {
-            is CustomerRef.Existing -> c.id
-            is CustomerRef.New -> dao.insertCustomer(CustomerEntity(name = c.name.trim(), createdAt = now))
-            null -> null
-        }
+        val customerId = resolveCustomerId(draft.customer, now)
         val entry = EntryEntity(
             customerId = customerId,
             type = draft.type.name,
@@ -233,11 +244,7 @@ class LedgerRepository @Inject constructor(
         val current = dao.entryById(entryId) ?: return@withTransaction null
         val oldItems = dao.itemsForEntryOnce(entryId).map(::toItemLine)
         val now = clock.millis()
-        val customerId = when (val c = draft.customer) {
-            is CustomerRef.Existing -> c.id
-            is CustomerRef.New -> dao.insertCustomer(CustomerEntity(name = c.name.trim(), createdAt = now))
-            null -> null
-        }
+        val customerId = resolveCustomerId(draft.customer, now)
         val history = EntryHistoryEntity(
             entryId = entryId,
             changedAt = now,

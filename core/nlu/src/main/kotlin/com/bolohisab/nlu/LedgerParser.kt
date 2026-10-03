@@ -18,7 +18,7 @@ class LedgerParser(
     private val itemWords: Set<String> = Lexicon.items + knownItems.map(BanglaText::key)
 
     fun parse(transcript: String): ParseResult {
-        val words = BanglaText.tokenize(transcript)
+        val words = BanglaText.tokenize(transcript).map(Dialect::standardize)
         val tokens = BanglaNumbers.parse(words)
         if (tokens.none { it !is Token.Sep }) return ParseResult.Unrecognized(transcript)
 
