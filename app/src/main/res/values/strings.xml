@@ -174,6 +174,7 @@
     <string name="voice_boost_working">প্রস্তুত করা হচ্ছে…</string>
     <string name="voice_boost_no_space">জায়গা কম: %1$s MB দরকার, খালি আছে %2$s MB</string>
     <string name="voice_boost_failed">চালু করা যায়নি: %1$s</string>
+    <string name="voice_boost_unsupported">এই ফোনে চালু করা গেল না। ভয়েস আগের মতোই কাজ করবে, বাড়তি জায়গাও ফেরত দেওয়া হয়েছে।</string>
 
     <string name="settings_lock_section">অ্যাপ লক</string>
     <string name="settings_lock_toggle">পিন দিয়ে অ্যাপ লক করুন</string>

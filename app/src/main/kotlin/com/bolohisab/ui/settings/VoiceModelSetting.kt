@@ -46,6 +46,9 @@ data class VoiceModelUiState(
 sealed interface VoiceModelProblem {
     data class NoSpace(val neededMb: Long, val freeMb: Long) : VoiceModelProblem
     data class Failed(val message: String) : VoiceModelProblem
+
+    /** The model loaded but cannot use hotwords on this phone; the copy was removed again. */
+    data object Unsupported : VoiceModelProblem
 }
 
 /** Opt-in copy of the speech model to storage, which lets recognition favour the shop's own words. */
@@ -70,18 +73,30 @@ class VoiceModelViewModel @Inject constructor(
         if (_state.value.busy) return
         _state.update { it.copy(busy = true, problem = null) }
         viewModelScope.launch {
-            val problem = if (on) {
-                when (val r = installer.install()) {
-                    AsrModelInstaller.Result.Installed -> null
-                    is AsrModelInstaller.Result.NotEnoughSpace -> VoiceModelProblem.NoSpace(r.neededBytes / MB, r.freeBytes / MB)
-                    AsrModelInstaller.Result.NoBundledModel -> VoiceModelProblem.Failed("no bundled model")
-                    is AsrModelInstaller.Result.Failed -> VoiceModelProblem.Failed(r.message)
+            var problem: VoiceModelProblem? = try {
+                if (on) {
+                    when (val r = installer.install()) {
+                        AsrModelInstaller.Result.Installed -> null
+                        is AsrModelInstaller.Result.NotEnoughSpace -> VoiceModelProblem.NoSpace(r.neededBytes / MB, r.freeBytes / MB)
+                        AsrModelInstaller.Result.NoBundledModel -> VoiceModelProblem.Failed("no bundled model")
+                        is AsrModelInstaller.Result.Failed -> VoiceModelProblem.Failed(r.message)
+                    }
+                } else {
+                    installer.remove()
+                    null
                 }
-            } else {
-                installer.remove()
-                null
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                VoiceModelProblem.Failed(e.message ?: e::class.java.simpleName)
             }
-            speech.reload()
+            runCatching { speech.reload() }
+            // Copied, but this model/phone can't use hotwords: the 90 MB copy would only waste space.
+            val loaded = speech.state.value
+            if (on && problem == null && loaded is ModelState.Ready && !loaded.hotwordsSupported) {
+                runCatching { installer.remove(); speech.reload() }
+                problem = VoiceModelProblem.Unsupported
+            }
             _state.update { it.copy(busy = false, installed = installer.isInstalled(), problem = problem) }
         }
     }
@@ -116,6 +131,7 @@ fun VoiceModelSetting(viewModel: VoiceModelViewModel = hiltViewModel()) {
                         color = MaterialTheme.colorScheme.error,
                     )
                     is VoiceModelProblem.Failed -> Text(stringResource(R.string.voice_boost_failed, p.message), color = MaterialTheme.colorScheme.error)
+                    VoiceModelProblem.Unsupported -> Text(stringResource(R.string.voice_boost_unsupported), color = MaterialTheme.colorScheme.error)
                     null -> Unit
                 }
                 if (state.busy) LinearProgressIndicator(Modifier.fillMaxWidth().padding(top = 8.dp))

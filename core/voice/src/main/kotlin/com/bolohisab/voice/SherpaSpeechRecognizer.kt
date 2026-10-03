@@ -71,8 +71,9 @@ class SherpaSpeechRecognizer(
         val files = locator.locate() ?: run { _state.value = ModelState.Missing; return null }
         _state.value = ModelState.Loading
         return try {
-            // Hotwords need the BPE vocab read from a real file path, so only for models on disk.
-            hotwordsSupported = !files.fromAssets && files.bpeVocab != null
+            // Hotwords need the BPE vocab read from a real file path, so only for models on disk —
+            // and only when this model really is a BPE model and hotword loading has never died.
+            hotwordsSupported = !files.fromAssets && HotwordGuard.canTry(context, files)
             val config = OnlineRecognizerConfig(
                 featConfig = FeatureConfig(sampleRate = SAMPLE_RATE, featureDim = 80),
                 modelConfig = OnlineModelConfig(
@@ -99,7 +100,11 @@ class SherpaSpeechRecognizer(
                 hotwordsScore = 2.0f,
             )
             val assets = if (files.fromAssets) context.assets else null
+            // A bad native config aborts the whole process (no exception to catch), so the attempt
+            // is marked first: if it never returns, the next launch loads without hotwords.
+            if (hotwordsSupported) HotwordGuard.beginAttempt(context)
             OnlineRecognizer(assetManager = assets, config = config).also {
+                if (hotwordsSupported) HotwordGuard.attemptSucceeded(context)
                 recognizer = it
                 _state.value = ModelState.Ready(hotwordsSupported)
             }
