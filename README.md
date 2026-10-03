@@ -13,7 +13,9 @@ Everything runs on the phone: speech recognition, parsing and storage. Nothing i
 1. Open the `BoloHisab` folder in Android Studio and let Gradle sync.
 2. The first sync downloads, once:
    - the sherpa-onnx speech engine AAR (~40 MB) into `app/libs/` (done in `settings.gradle.kts`);
-   - the Bangla streaming Zipformer model (~90 MB) into `app/src/main/assets/models/asr-bn/` (Gradle task `fetchAsrModel`, runs before `preBuild`).
+   - the Bangla streaming Zipformer model (~90 MB) into the `asr_model` Play Asset Delivery pack, `asr_model/src/main/assets/models/asr-bn/` (Gradle task `:asr_model:fetchAsrModel`, runs before `preBuild`; a model downloaded by older builds into `app/src/main/assets` is moved there).
+
+Debug builds carry the model inside the APK. Release builds are meant for Play: the model arrives as a fast-follow pack right after install. A release APK installed outside Play has no voice model (typing still works); test release builds through Play internal testing or `bundletool build-apks --local-testing`.
 3. Run the `app` configuration on a phone or an x86_64 emulator.
 
 With no model on the device, the app still works by typing (keyboard icon, top right), and the three example sentences on the empty home screen run through the same parser.

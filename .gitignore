@@ -13,3 +13,4 @@ captures/
 app/libs/*.aar
 app/libs/*.part
 app/src/main/assets/models/
+asr_model/src/main/assets/models/

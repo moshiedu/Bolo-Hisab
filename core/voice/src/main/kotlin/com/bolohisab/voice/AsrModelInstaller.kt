@@ -13,7 +13,8 @@ import java.io.IOException
  * biasing towards the shop's customers and goods — at the cost of a second copy of the model
  * (~90 MB). Opt-in from Settings; removing it falls back to the bundled copy.
  *
- * Later a Play Asset Delivery pack can put the model on disk directly, with no duplicate.
+ * Installs from Play get the model from the `:asr_model` fast-follow pack, already on disk, so they
+ * never need this (the Settings toggle only appears when the model is inside the APK).
  */
 class AsrModelInstaller(private val context: Context) {
 

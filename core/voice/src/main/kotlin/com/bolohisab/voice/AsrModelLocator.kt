@@ -21,15 +21,23 @@ data class AsrModelFiles(
  * Expected files: encoder*.onnx, decoder*.onnx, joiner*.onnx, tokens.txt and
  * optionally *.vocab. int8 variants are preferred when both exist.
  */
-class AsrModelLocator(private val context: Context) {
+class AsrModelLocator(
+    private val context: Context,
+    private val pack: AsrModelPack? = null,
+) {
 
-    fun locate(): AsrModelFiles? = fromDisk() ?: fromAssets()
+    /** The copy in app storage, then the Play asset pack, then the copy inside the APK. */
+    fun locate(): AsrModelFiles? = fromDisk() ?: fromPack() ?: fromAssets()
 
     /** The model copied into app storage, if complete. */
     fun locateOnDisk(): AsrModelFiles? = fromDisk()
 
-    private fun fromDisk(): AsrModelFiles? {
-        val dir = File(context.filesDir, DISK_DIR)
+    private fun fromDisk(): AsrModelFiles? = fromDir(File(context.filesDir, DISK_DIR))
+
+    /** The fast-follow asset pack Play delivered, stored as plain files (hotwords work). */
+    private fun fromPack(): AsrModelFiles? = pack?.modelDir()?.let(::fromDir)
+
+    private fun fromDir(dir: File): AsrModelFiles? {
         val names = dir.list()?.toList() ?: return null
         return pick(names)?.let { m ->
             m.copy(

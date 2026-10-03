@@ -1,6 +1,4 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import java.net.URI
-import javax.inject.Inject
 
 plugins {
     alias(libs.plugins.android.application)
@@ -34,6 +32,12 @@ android {
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
+    }
+
+    assetPacks += setOf(":asr_model")
+
+    sourceSets {
+        getByName("debug") { assets.srcDir(rootProject.file("asr_model/src/main/assets")) }
     }
 
     androidResources {
@@ -87,47 +91,6 @@ dependencies {
     testImplementation(libs.junit)
 }
 
-/**
- * Downloads the Bangla streaming Zipformer (~90 MB, Vosk-derived, published by sherpa-onnx)
- * into assets on the first build. Later this moves to a Play Asset Delivery pack.
- */
-abstract class FetchAsrModel : DefaultTask() {
-    @get:Input abstract val url: Property<String>
-    @get:OutputDirectory abstract val outputDir: DirectoryProperty
-    @get:Internal abstract val workDir: DirectoryProperty
-    @get:Inject abstract val fs: FileSystemOperations
-    @get:Inject abstract val archives: ArchiveOperations
-
-    @TaskAction
-    fun fetch() {
-        val out = outputDir.get().asFile
-        if (File(out, "encoder.onnx").exists()) return
-        val archive = workDir.file("asr-bn.tar.bz2").get().asFile
-        archive.parentFile.mkdirs()
-        if (!archive.exists()) {
-            logger.lifecycle("Downloading Bangla ASR model (one time, ~90 MB)…")
-            val part = File(archive.path + ".part")
-            URI(url.get()).toURL().openStream().use { input -> part.outputStream().use { input.copyTo(it) } }
-            check(part.renameTo(archive)) { "Could not save $archive" }
-        }
-        fs.copy {
-            from(archives.tarTree(archives.bzip2(archive)))
-            include("*/encoder.onnx", "*/decoder.onnx", "*/joiner.onnx", "*/tokens.txt", "*/*.vocab")
-            eachFile { path = name }
-            includeEmptyDirs = false
-            into(out)
-        }
-    }
-}
-
-val fetchAsrModel = tasks.register<FetchAsrModel>("fetchAsrModel") {
-    group = "setup"
-    url.set(
-        "https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/" +
-            "sherpa-onnx-streaming-zipformer-bn-vosk-2026-02-09.tar.bz2",
-    )
-    outputDir.set(layout.projectDirectory.dir("src/main/assets/models/asr-bn"))
-    workDir.set(layout.buildDirectory.dir("asr-download"))
-}
-
-tasks.named("preBuild") { dependsOn(fetchAsrModel) }
+// The speech model lives in the :asr_model asset pack (fast-follow). Debug builds also put it inside
+// the APK, because Play only delivers packs to installs from Play; release bundles leave it out.
+tasks.named("preBuild") { dependsOn(":asr_model:fetchAsrModel") }

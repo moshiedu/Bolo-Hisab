@@ -22,9 +22,13 @@ the khata basics ship in v1, with voice-first entry as the differentiator.
   `LexiconFilesTest` validates every file. Grow vocabulary and dialects there, not in code.
   `words.csv` rows in `grocery`/`pharmacy`/`hardware` are goods for the parser (`Lexicon.goods`) and
   ASR hotwords (`Hotwords.build`: customers, products, past items, units, goods; cap 300).
-- **ASR hotwords** only work for a model on disk (BPE vocab must be a file). `AsrModelInstaller`
-  copies the bundled model to storage (~90 MB, opt-in Settings toggle, space-checked, atomic) and
-  `SpeechRecognizer.reload()` picks it up. Long term: Play Asset Delivery to avoid the duplicate.
+- **Speech model delivery**: `:asr_model` is a fast-follow Play Asset Delivery pack (its build
+  downloads the model on first build). Play installs get it as files on disk → hotwords work, no
+  duplicate; `AsrModelPack` finds it and fetches it if missing, then the recogniser reloads. Debug
+  builds also carry the model in the APK (debug assets srcDir). A release APK sideloaded outside Play
+  has no model (typing only) — test release via Play internal testing or `bundletool --local-testing`.
+- **ASR hotwords** only work for a model on disk (BPE vocab must be a file). For APK-bundled models
+  (debug), `AsrModelInstaller` copies it to storage behind an opt-in Settings toggle (~90 MB).
 - **Learning** (on device, encrypted DB tables `typing_choices`, `word_usage`, `word_pairs`,
   `corrections`; `LearningRepository`): whole-word picks per Banglish spelling, word/pair usage from
   confirmed entries, and voice fixes learned from confirm-card edits (`Corrections.learn`). Corrections

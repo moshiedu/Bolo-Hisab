@@ -34,4 +34,6 @@ dependencies {
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
     implementation(libs.kotlinx.coroutines.android)
+    // Finds and fetches the :asr_model Play Asset Delivery pack.
+    implementation(libs.play.asset.delivery)
 }

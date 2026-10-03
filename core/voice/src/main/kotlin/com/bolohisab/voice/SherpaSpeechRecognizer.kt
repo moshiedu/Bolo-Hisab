@@ -16,7 +16,10 @@ import com.k2fsa.sherpa.onnx.OnlineRecognizer
 import com.k2fsa.sherpa.onnx.OnlineRecognizerConfig
 import com.k2fsa.sherpa.onnx.OnlineStream
 import com.k2fsa.sherpa.onnx.OnlineTransducerModelConfig
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,6 +28,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.withContext
 import java.util.concurrent.atomic.AtomicBoolean
@@ -39,8 +43,11 @@ import kotlin.math.sqrt
 @OptIn(ExperimentalCoroutinesApi::class, kotlinx.coroutines.DelicateCoroutinesApi::class)
 class SherpaSpeechRecognizer(
     private val context: Context,
-    private val locator: AsrModelLocator = AsrModelLocator(context),
+    private val pack: AsrModelPack = AsrModelPack(context),
+    private val locator: AsrModelLocator = AsrModelLocator(context, pack),
 ) : SpeechRecognizer {
+
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     private val asrThread = newSingleThreadContext("bolohisab-asr")
     private val _state = MutableStateFlow<ModelState>(ModelState.NotLoaded)
@@ -50,7 +57,14 @@ class SherpaSpeechRecognizer(
     private var hotwordsSupported = false
     private val stopRequested = AtomicBoolean(false)
 
-    override suspend fun warmUp() = withContext(asrThread) { ensureLoaded(); Unit }
+    override suspend fun warmUp() = withContext(asrThread) {
+        // No model yet on a Play install: the fast-follow pack may still be downloading (or was
+        // cleared). Ask for it and load it the moment it lands; typing works meanwhile.
+        if (ensureLoaded() == null && _state.value is ModelState.Missing) {
+            pack.requestIfMissing { scope.launch { reload() } }
+        }
+        Unit
+    }
 
     private fun ensureLoaded(): OnlineRecognizer? {
         recognizer?.let { return it }
